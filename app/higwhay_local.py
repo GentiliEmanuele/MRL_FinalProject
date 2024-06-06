@@ -8,8 +8,8 @@ from tabulate import tabulate
 
 # Suppress the specific warning message
 warnings.filterwarnings("ignore", category=UserWarning, message=".*env.action_type to get variables from other wrappers is deprecated.*")
-warnings.filterwarnings("ignore", category=UserWarning, message=".*env.configure.*")
-warnings.filterwarnings("ignore", category=UserWarning, message=".*Overwriting existing videos.*")
+# warnings.filterwarnings("ignore", category=UserWarning, message=".*env.configure.*")
+# warnings.filterwarnings("ignore", category=UserWarning, message=".*Overwriting existing videos.*")
 
 config = {
     "observation": {
@@ -37,7 +37,7 @@ config = {
     "centering_position": [0.1, 0.5],
     "scaling": 5.5,
     "show_trajectories": False,
-    "render_agent": True,
+    "render_agent": False,
     "offscreen_rendering": False
 }
 
@@ -53,13 +53,10 @@ print("Gym configure")
 
 obs, info = env.reset(seed = 666)
 
-env = record_videos(env)
-
 features = ["presence", "x", "y", "vx", "vy", "cos_h", "sin_h"]
 print(tabulate(obs, headers = features, tablefmt="grid"))
 
-# plt.imshow(env.render())
-# plt.show()
+env = record_videos(env)
 
 done = False
 truncated = False
@@ -73,7 +70,7 @@ agent_config = {
 agent = agent_factory(env, agent_config)
 
 while (not done and not truncated):
-    action = env.action_type.actions_indexes["IDLE"]
+    action = env.action_type.actions_indexes["FASTER"]
     obs, reward, done, truncated, info = env.step(action)
 
 env.close()
