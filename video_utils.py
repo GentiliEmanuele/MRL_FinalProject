@@ -2,11 +2,11 @@ import base64
 from pathlib import Path
 
 from gymnasium.wrappers import RecordVideo
-from IPython import display as ipythondisplay
-from pyvirtualdisplay import Display
+# from IPython import display as ipythondisplay
+# from pyvirtualdisplay import Display
 
-display = Display(visible=0, size=(1400, 900))
-display.start()
+# display = Display(visible=0, size=(1400, 900))
+# display.start()
 
 
 def record_videos(env, video_folder="videos"):
