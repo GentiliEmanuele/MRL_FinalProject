@@ -1,8 +1,5 @@
 import gymnasium as gym
-import highway_env
-from rl_agents.agents.common.factory import agent_factory
 from video_utils import record_videos
-from matplotlib import pyplot as plt
 import warnings
 from tabulate import tabulate
 
@@ -60,14 +57,7 @@ env = record_videos(env)
 
 done = False
 truncated = False
-# Make agent
-agent_config = {
-    "__class__": "<class 'rl_agents.agents.tree_search.deterministic.DeterministicPlannerAgent'>",
-    "env_preprocessors": [{"method":"simplify"}],
-    "budget": 50,
-    "gamma": 0.7,
-}
-agent = agent_factory(env, agent_config)
+
 
 while (not done and not truncated):
     action = env.action_type.actions_indexes["FASTER"]
