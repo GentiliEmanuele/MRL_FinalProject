@@ -17,7 +17,7 @@ config = {
         "absolute": True,
         "order": "sorted",
         "vehicles_count": 5, #max number of observable vehicles
-        "normalize": False
+        "normalize": True
     },
     "action": {
         "type": "DiscreteMetaAction",
