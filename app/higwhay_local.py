@@ -1,4 +1,10 @@
+import random
+import time
+
 import gymnasium as gym
+import numpy as np
+
+from app.tile_coding.my_tiles import IHT, tiles, estimate
 from video_utils import record_videos
 import warnings
 from tabulate import tabulate
@@ -13,16 +19,16 @@ warnings.filterwarnings("ignore", category=UserWarning, message=".*env.action_ty
 config = {
     "observation": {
         "type": "Kinematics",
-        "features": ["presence", "x", "y", "vx", "vy", "cos_h", "sin_h"],
-        "absolute": True,
+        "features": ["x", "y", "vx", "vy"],
+        "absolute": False,
         "order": "sorted",
-        "vehicles_count": 5, #max number of observable vehicles
+        "vehicles_count": 4, #max number of observable vehicles
         "normalize": True
     },
     "action": {
         "type": "DiscreteMetaAction",
     },
-    "lanes_count": 5,
+    "lanes_count": 3,
     "vehicles_count": 10, #max number of existing vehicles
     "duration": 40,  # [s]
     "initial_spacing": 2,
@@ -51,23 +57,59 @@ env.configure(config)
 
 print("Gym configure")
 
-obs, info = env.reset(seed=666)
+state, info = env.reset(seed=42)
+np.random.seed(42)
+random.seed(42)
 
 # See initial configuration
 plt.imshow(env.render())
 plt.show()
 
-features = ["presence", "x", "y", "vx", "vy", "cos_h", "sin_h"]
-print(tabulate(obs, headers=features, tablefmt="grid"))
+features = ["x", "y", "vx", "vy"]
+print(tabulate(state, headers=features, tablefmt="grid"))
 
 env = record_videos(env)
 
 done = False
 truncated = False
 
+maxSize = 256 * 12
+iht = IHT(maxSize)
+space_action_len = len(env.action_type.actions_indexes)
+weights = np.random.rand(maxSize, space_action_len)
+numTilings = maxSize // 256 # according to Sutton example we keep the ratio between maxSize and numTilings as 1 / 156
+alpha = 0.1 / numTilings # step size
+epsilon = 0.1
+gamma = 0.9
+
+# Choose A
+action = env.action_type.actions_indexes["IDLE"]
 
 while not done and not truncated:
-    action = env.action_type.actions_indexes["FASTER"]
-    obs, reward, done, truncated, info = env.step(action)
+    # tiles_list of initial state
+    tiles_list = tiles(iht, numTilings, state.flatten().tolist())
+    # Take action A, observe R, S'
+    state_p, reward, done, truncated, info = env.step(action)
+    if done:
+        for tile in tiles_list:
+            weights[tile, action] = weights[tile, action] + alpha * (reward - estimate(tiles_list, action, weights))
+    else:
+        tiles_list_p = tiles(iht, numTilings, state_p.flatten().tolist())
+        # Choose A' as a function of q(s, ., w) (e.g e-greedy)
+        if random.random() < epsilon:
+            action_p = random.randint(0, space_action_len - 1)
+        else:
+            best_action = 0
+            best_estimate = 0
+            for a in range(0, space_action_len):
+                actual_estimate = estimate(tiles_list_p, a, weights)
+                if actual_estimate > best_estimate:
+                    best_estimate = actual_estimate
+                    best_action = a
+            action_p = best_action
+        for tile in tiles_list:
+            weights[tile, action] = weights[tile, action] + alpha*(reward + gamma * estimate(tiles_list_p, action_p, weights) - estimate(tiles_list, action, weights))
+        state = state_p
+        action = action_p
 
 env.close()
