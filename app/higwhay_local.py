@@ -84,6 +84,7 @@ for episode in range(num_Episodes):
     state, info = env.reset(seed=44)
     if episode == num_Episodes - 1:
         config["duration"] = 160
+        env.configure(config)
         env = record_videos(env)
     while not done and not truncated:
         # tiles_list of initial state
