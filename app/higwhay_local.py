@@ -29,7 +29,7 @@ config = {
         "type": "DiscreteMetaAction",
     },
     "lanes_count": 3,
-    "vehicles_count": 50, #max number of existing vehicles
+    "vehicles_count": 5, #max number of existing vehicles
     "duration": 36,  # [s]
     "initial_spacing": 2,
     "collision_reward": -1,  # The reward received when colliding with a vehicle.
