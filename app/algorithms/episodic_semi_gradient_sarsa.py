@@ -35,7 +35,7 @@ class episodic_semi_gradient_sarsa():
         epsilon_0 = 0.1
         epsilon = epsilon_0
         gamma = 0.9
-        num_Episodes = 100
+        num_Episodes = 200
 
         # Choose A
         action = env.action_type.actions_indexes["IDLE"]
@@ -80,6 +80,6 @@ class episodic_semi_gradient_sarsa():
                     action = action_p
                 epsilon = epsilon - epsilon_0 / num_Episodes
 
-        weights_handler.save_weights(weights, "episodic_semi_gradient_sarsa_weights")
+        weights_handler.save_weights(weights, "algorithms/weights/episodic_semi_gradient_sarsa_weights")
 
         return weights

@@ -18,7 +18,6 @@ warnings.filterwarnings("ignore", category=UserWarning, message=".*Overwriting e
 
 # Create a ConfigParser object
 config_parser = configparser.ConfigParser()
-
 # Read the configuration file
 config_parser.read('config.ini')
 
@@ -67,6 +66,7 @@ elif algorithm_type == 2:
     print("Algorithm chosen: True online TD(lambda)")
     algorithm_instance = true_online_td_lambda()
 else:
+    print("Invalid configuration.\nAlgorithm chosen: Episodic semi-gradient Sarsa")
     algorithm_instance = episodic_semi_gradient_sarsa()
 
 weights = algorithm_instance.execute(env=env, config=config)

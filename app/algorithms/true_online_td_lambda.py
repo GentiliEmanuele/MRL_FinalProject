@@ -43,7 +43,7 @@ class true_online_td_lambda():
             print("Episode", episode)
             done = False
             truncated = False
-            state, info = env.reset(seed=44)
+            state, info = env.reset(seed=42)
             if episode == num_Episodes - 1:
                 config["duration"] = 160
                 env.configure(config)
@@ -53,8 +53,8 @@ class true_online_td_lambda():
             tiles_list = tiles(iht, numTilings, state.flatten().tolist())
             # z
             traces = np.zeros(weights.shape)
-            # V_old
-            V = 0
+
+            V_old = 0
 
             # Loop for each step of episode
             while not done and not truncated:
@@ -79,16 +79,32 @@ class true_online_td_lambda():
 
                 # x'
                 tiles_list_p = tiles(iht, numTilings, state_p.flatten().tolist())
-                V = weights.T @ tiles_list
-                V_p = weights.T @ tiles_list_p
+
+                V = 0.0
+                V_p = 0.0
+
+                for tile in tiles_list:
+                    V = V + weights[tile, action]
+
+                for tile_p in tiles_list_p:
+                    V_p = V_p + weights[tile_p, action]
+
                 delta = reward + gamma * V_p - V
-                traces = (gamma * trace_decay_rate * traces +
-                          (1 - alpha * gamma * trace_decay_rate * traces.T @ tiles_list) @ tiles_list )
-                weights = weights + alpha * (delta + V - V_p) - alpha * (V - V_p) * tiles_list
-                V = V_p
+
+                for tile in tiles_list:
+                    traces[tile, action] = (gamma * trace_decay_rate * traces[tile, action] +
+                          (1 - alpha * gamma * trace_decay_rate * traces[tile, action]))
+
+                weights = weights + alpha * (delta + V - V_p) * traces
+                for tile in tiles_list:
+                    weights[tile, action] = weights[tile, action] - alpha * (V - V_p)
+
+                V_old = V_p
+
                 tiles_list = tiles_list_p
+
                 epsilon = epsilon - epsilon_0 / num_Episodes
 
-        weights_handler.save_weights(weights, "true_online_td_lambda_weights")
+        weights_handler.save_weights(weights, "algorithms/weights/true_online_td_lambda_weights")
 
         return weights
