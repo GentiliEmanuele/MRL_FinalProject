@@ -43,11 +43,13 @@ class true_online_td_lambda():
             print("Episode", episode)
             done = False
             truncated = False
-            state, info = env.reset(seed=42)
             if episode == num_Episodes - 1:
                 config["duration"] = 160
+                config["vehicles_count"] = 20
                 env.configure(config)
                 env = record_videos(env)
+
+            state, info = env.reset(seed=42)
 
             # x
             tiles_list = tiles(iht, numTilings, state.flatten().tolist())

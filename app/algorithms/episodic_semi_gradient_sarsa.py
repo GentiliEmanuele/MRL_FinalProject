@@ -1,6 +1,3 @@
-"""
-Sutton page 244
-"""
 from app.tile_coding.my_tiles import IHT, tiles, estimate
 from app.utilities.video_utils import record_videos
 from matplotlib import pyplot as plt
@@ -35,7 +32,7 @@ class episodic_semi_gradient_sarsa():
         epsilon_0 = 0.1
         epsilon = epsilon_0
         gamma = 0.9
-        num_Episodes = 200
+        num_Episodes = 400
 
         # Choose A
         action = env.action_type.actions_indexes["IDLE"]
@@ -43,11 +40,13 @@ class episodic_semi_gradient_sarsa():
             print("Episode", episode)
             done = False
             truncated = False
-            state, info = env.reset(seed=44)
             if episode == num_Episodes - 1:
                 config["duration"] = 160
+                config["vehicles_count"] = 60
                 env.configure(config)
                 env = record_videos(env)
+
+            state, info = env.reset(seed=42)
             while not done and not truncated:
                 # tiles_list of initial state
                 tiles_list = tiles(iht, numTilings, state.flatten().tolist())
