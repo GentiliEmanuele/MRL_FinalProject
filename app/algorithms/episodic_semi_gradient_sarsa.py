@@ -42,24 +42,19 @@ class episodic_semi_gradient_sarsa():
         epsilon_0 = 0.1
         epsilon = epsilon_0
         gamma = 0.9
-        num_Episodes = 10
+        num_Episodes = 201
 
         # Choose A
         for episode in range(num_Episodes):
             print("Episode", episode)
             done = False
             truncated = False
-            if episode % 10 == 0:
+            if episode % 50 == 0 and episode != 0:
                 env = record_videos(env)
 
-            if episode % 10 == 1:
+            if episode % 50 == 1:
                 env = gym.make('highway-v0', render_mode='rgb_array')
                 env.configure(config)
-
-            # if episode == num_Episodes - 1:
-            #     config["duration"] = 220
-            #     config["vehicles_count"] = 60
-            #     env.configure(config)
 
             state, info = env.reset(seed=42 + episode)
             action = env.action_type.actions_indexes["IDLE"]
@@ -74,15 +69,12 @@ class episodic_semi_gradient_sarsa():
                 tiles_list = tiles(iht, numTilings, state.flatten().tolist())
                 # Take action A, observe R, S'
                 state_p, reward, done, truncated, info = env.step(action)
-                # print(state_p[0][2])
                 expected_return += reward
                 if done or truncated:
-                    print("Episode finished after {} timesteps".format(num_steps))
+                    print("Episode finished after {} timesteps, crashed? {}".format(num_steps, done))
                     print("Expected return {}".format(expected_return))
-                    if truncated:
-                        print("Truncated {}\n".format(truncated))
                     if done:
-                        reward = -60
+                        reward = -10
                     for tile in tiles_list:
                         weights[tile, action] = weights[tile, action] + alpha * (
                                 reward - estimate(tiles_list, action, weights))

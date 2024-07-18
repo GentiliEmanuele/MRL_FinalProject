@@ -30,7 +30,7 @@ config = {
         "absolute": True,
         "order": "sorted",
         "vehicles_count": 4,  #max number of observable vehicles
-        "normalize": False
+        "normalize": True
     },
     "action": {
         "type": "DiscreteMetaAction",
@@ -40,7 +40,7 @@ config = {
     "duration": 60,  # [s]
     "initial_spacing": 2,
     "collision_reward": -10,  # The reward received when colliding with a vehicle.
-    'normalize_reward': False,
+    'normalize_reward': True,
     "reward_speed_range": [28, 30],  # [m/s] The reward for high speed is mapped linearly from this range to [0,
     # HighwayEnv.HIGH_SPEED_REWARD].
     "simulation_frequency": 15,  # [Hz]

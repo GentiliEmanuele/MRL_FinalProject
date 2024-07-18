@@ -6,7 +6,8 @@ class WeightsHandler:
         self.shape = (states_len, actions_len)
 
     def generate_weights(self):
-        weights = np.random.rand(*self.shape)
+        # weights = np.random.rand(*self.shape)
+        weights = np.zeros(self.shape)
         return weights
 
     def save_weights(self, weights, filename):
