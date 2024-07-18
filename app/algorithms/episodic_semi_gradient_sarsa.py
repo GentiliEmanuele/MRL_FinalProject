@@ -1,8 +1,11 @@
 import configparser
 
+import numpy as np
+
 from app.tile_coding.my_tiles import IHT, tiles, estimate
 from app.utilities.video_utils import record_videos
 from matplotlib import pyplot as plt
+import gymnasium as gym
 
 import random
 
@@ -39,27 +42,47 @@ class episodic_semi_gradient_sarsa():
         epsilon_0 = 0.1
         epsilon = epsilon_0
         gamma = 0.9
-        num_Episodes = 250
+        num_Episodes = 10
 
         # Choose A
-        action = env.action_type.actions_indexes["IDLE"]
         for episode in range(num_Episodes):
             print("Episode", episode)
             done = False
             truncated = False
-            if episode == num_Episodes - 1:
-                config["duration"] = 220
-                config["vehicles_count"] = 60
-                env.configure(config)
+            if episode % 10 == 0:
                 env = record_videos(env)
 
-            state, info = env.reset(seed=42)
+            if episode % 10 == 1:
+                env = gym.make('highway-v0', render_mode='rgb_array')
+                env.configure(config)
+
+            # if episode == num_Episodes - 1:
+            #     config["duration"] = 220
+            #     config["vehicles_count"] = 60
+            #     env.configure(config)
+
+            state, info = env.reset(seed=42 + episode)
+            action = env.action_type.actions_indexes["IDLE"]
+
+            # epsilon = epsilon - epsilon_0 / num_Episodes
+
+            # Debugging variables
+            num_steps = 0
+            expected_return = 0
             while not done and not truncated:
                 # tiles_list of initial state
                 tiles_list = tiles(iht, numTilings, state.flatten().tolist())
                 # Take action A, observe R, S'
                 state_p, reward, done, truncated, info = env.step(action)
-                if done:
+                # print(state_p[0][2])
+                expected_return += reward
+                if done or truncated:
+                    print("Episode finished after {} timesteps".format(num_steps))
+                    print("Expected return {}".format(expected_return))
+                    if truncated:
+                        print("Truncated {}\n".format(truncated))
+                    if done:
+                        reward = -60
                     for tile in tiles_list:
                         weights[tile, action] = weights[tile, action] + alpha * (
                                 reward - estimate(tiles_list, action, weights))
@@ -70,8 +93,8 @@ class episodic_semi_gradient_sarsa():
                         action_p = random.randint(0, space_action_len - 1)
                     else:
                         best_action = 0
-                        best_estimate = 0
-                        for a in range(0, space_action_len):
+                        best_estimate = estimate(tiles_list_p, 0, weights)
+                        for a in range(1, space_action_len):
                             actual_estimate = estimate(tiles_list_p, a, weights)
                             if actual_estimate > best_estimate:
                                 best_estimate = actual_estimate
@@ -84,8 +107,71 @@ class episodic_semi_gradient_sarsa():
                                                                                                       weights))
                     state = state_p
                     action = action_p
-            epsilon = epsilon - epsilon_0 / num_Episodes
+                    num_steps += 1
 
+        #-----------------------INFERENCE--------------------------
+        inference = True
+        if inference:
+            print("STO QUA")
+            env.close()
+            env = gym.make('highway-v0', render_mode='rgb_array')
+            env.configure(config)
+            state, info = env.reset(seed=42)
+            np.random.seed(44)
+            random.seed(44)
+
+            features = ["x", "y", "vx", "vy"]
+            maxSize_proportion = int(config_parser['tilings']['maxSize_proportion'])
+            maxSize = maxSize_proportion * config["observation"]["vehicles_count"] * len(features)
+            iht = IHT(maxSize)
+            numTilings = maxSize // maxSize_proportion
+
+            space_action_len = len(env.action_type.actions_indexes)
+
+            avg_avg_speed = 0
+            avg_num_steps = 0
+            inference_runs = 10
+
+            for i in range(10):
+                state, info = env.reset(seed=(42+i))
+                action = env.action_type.actions_indexes["IDLE"]
+
+                done = False
+                truncated = False
+                avg_speed = 0
+                num_steps = 0
+                env.configure(config)
+                if False and i == 0:
+                    env = record_videos(env)
+                while not done and not truncated:
+                    tiles_list = tiles(iht, numTilings, state.flatten().tolist())
+
+                    best_action = 0
+                    best_estimate = estimate(tiles_list, 0, weights)
+                    for a in range(1, space_action_len):
+                        actual_estimate = estimate(tiles_list, a, weights)
+                        if actual_estimate > best_estimate:
+                            best_estimate = actual_estimate
+                            best_action = a
+                    action = best_action
+
+                    num_steps += 1
+                    avg_speed = ((num_steps-1)*avg_speed + state[0][2]) / num_steps
+
+                    state, reward, done, truncated, info = env.step(action)
+                avg_avg_speed += avg_speed / inference_runs
+                avg_num_steps += num_steps / inference_runs
+                print(f"Inference {i} -> avg_speed: {avg_speed}, num_steps: {num_steps}")
+
+            print("Average avg_speed: {}, Average num_steps={}".format(avg_avg_speed, avg_num_steps))
+            #-----------------------------END INFERENCE-------------------------------
+
+
+        # ---------------------------- WEIGHTS -----------------------------------
         weights_handler.save_weights(weights, "algorithms/weights/episodic_semi_gradient_sarsa_weights")
+
+        saved_weights = weights_handler.load_weights("algorithms/weights/episodic_semi_gradient_sarsa_weights.npy")
+
+        print(f"Equals? {np.array_equal(weights, saved_weights)}")
 
         return weights

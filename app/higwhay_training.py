@@ -6,6 +6,8 @@ import numpy as np
 import warnings
 import configparser
 
+from highway_env.envs import HighwayEnv
+
 from app.algorithms.episodic_semi_gradient_sarsa import episodic_semi_gradient_sarsa
 from app.algorithms.true_online_td_lambda import true_online_td_lambda
 
@@ -25,20 +27,21 @@ config = {
     "observation": {
         "type": "Kinematics",
         "features": ["x", "y", "vx", "vy"],
-        "absolute": False,
+        "absolute": True,
         "order": "sorted",
         "vehicles_count": 4,  #max number of observable vehicles
-        "normalize": True
+        "normalize": False
     },
     "action": {
         "type": "DiscreteMetaAction",
     },
     "lanes_count": 3,
     "vehicles_count": 18,  #max number of existing vehicles
-    "duration": 36,  # [s]
+    "duration": 60,  # [s]
     "initial_spacing": 2,
-    "collision_reward": -1,  # The reward received when colliding with a vehicle.
-    "reward_speed_range": [20, 30],  # [m/s] The reward for high speed is mapped linearly from this range to [0,
+    "collision_reward": -10,  # The reward received when colliding with a vehicle.
+    'normalize_reward': False,
+    "reward_speed_range": [28, 30],  # [m/s] The reward for high speed is mapped linearly from this range to [0,
     # HighwayEnv.HIGH_SPEED_REWARD].
     "simulation_frequency": 15,  # [Hz]
     "policy_frequency": 1,  # [Hz]
