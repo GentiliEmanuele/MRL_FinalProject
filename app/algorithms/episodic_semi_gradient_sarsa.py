@@ -1,3 +1,5 @@
+import configparser
+
 from app.tile_coding.my_tiles import IHT, tiles, estimate
 from app.utilities.video_utils import record_videos
 from matplotlib import pyplot as plt
@@ -9,20 +11,25 @@ from app.utilities.weights_handler import WeightsHandler
 
 class episodic_semi_gradient_sarsa():
     def execute(self, env, config):
+
+        # Create a ConfigParser object
+        config_parser = configparser.ConfigParser()
+        # Read the configuration file
+        config_parser.read('config.ini')
+
         # See initial configuration
         plt.imshow(env.render())
         plt.show()
 
         features = ["x", "y", "vx", "vy"]
 
-        done = False
-        truncated = False
         # optimal number of features (maxSize) per non fare hashing e vedere se facendo hashing le performance dell'algoritmo
         # degradano
-        maxSize = 256 * 12
+        maxSize_proportion = int(config_parser['tilings']['maxSize_proportion'])
+        maxSize = maxSize_proportion * config["observation"]["vehicles_count"] * len(features)
         iht = IHT(maxSize)
         # according to Sutton example we keep the ratio between maxSize and numTilings as 1 / 256
-        numTilings = maxSize // 256
+        numTilings = maxSize // maxSize_proportion
 
         space_action_len = len(env.action_type.actions_indexes)
         weights_handler = WeightsHandler(maxSize, space_action_len)
@@ -32,7 +39,7 @@ class episodic_semi_gradient_sarsa():
         epsilon_0 = 0.1
         epsilon = epsilon_0
         gamma = 0.9
-        num_Episodes = 400
+        num_Episodes = 250
 
         # Choose A
         action = env.action_type.actions_indexes["IDLE"]
@@ -41,7 +48,7 @@ class episodic_semi_gradient_sarsa():
             done = False
             truncated = False
             if episode == num_Episodes - 1:
-                config["duration"] = 160
+                config["duration"] = 220
                 config["vehicles_count"] = 60
                 env.configure(config)
                 env = record_videos(env)
@@ -77,7 +84,7 @@ class episodic_semi_gradient_sarsa():
                                                                                                       weights))
                     state = state_p
                     action = action_p
-                epsilon = epsilon - epsilon_0 / num_Episodes
+            epsilon = epsilon - epsilon_0 / num_Episodes
 
         weights_handler.save_weights(weights, "algorithms/weights/episodic_semi_gradient_sarsa_weights")
 

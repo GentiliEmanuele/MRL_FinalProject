@@ -117,4 +117,3 @@ def estimate(actual_tiles, action, weights):
         result += weights[tile][action]
     return result
 
-
