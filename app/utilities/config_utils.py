@@ -18,8 +18,8 @@ def get_current_config():
         "collision_reward": -1,  # The reward received when colliding with a vehicle.
         "reward_speed_range": [25, 30],  # [m/s] The reward for high speed is mapped linearly from this range to [0,
         # HighwayEnv.HIGH_SPEED_REWARD].
-        "high_speed_reward": 0.3,
-        "normalize_reward": True,
+        "high_speed_reward": 1,
+        "normalize_reward": False,
         "simulation_frequency": 15,  # [Hz]
         "policy_frequency": 1,  # [Hz]
         "other_vehicles_type": "highway_env.vehicle.behavior.IDMVehicle",
