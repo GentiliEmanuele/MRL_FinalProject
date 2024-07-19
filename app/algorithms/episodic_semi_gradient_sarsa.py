@@ -3,6 +3,7 @@ import configparser
 import numpy as np
 
 from app.tile_coding.my_tiles import IHT, tiles, estimate
+from app.utilities.config_utils import get_features
 from app.utilities.video_utils import record_videos
 from matplotlib import pyplot as plt
 import gymnasium as gym
@@ -24,12 +25,10 @@ class episodic_semi_gradient_sarsa():
         plt.imshow(env.render())
         plt.show()
 
-        features = ["x", "y", "vx", "vy"]
-
         # optimal number of features (maxSize) per non fare hashing e vedere se facendo hashing le performance dell'algoritmo
         # degradano
         maxSize_proportion = int(config_parser['tilings']['maxSize_proportion'])
-        maxSize = maxSize_proportion * config["observation"]["vehicles_count"] * len(features)
+        maxSize = maxSize_proportion * config["observation"]["vehicles_count"] * len(get_features())
         iht = IHT(maxSize)
         # according to Sutton example we keep the ratio between maxSize and numTilings as 1 / 256
         numTilings = maxSize // maxSize_proportion
@@ -73,8 +72,6 @@ class episodic_semi_gradient_sarsa():
                 if done or truncated:
                     print("Episode finished after {} timesteps, crashed? {}".format(num_steps, done))
                     print("Expected return {}".format(expected_return))
-                    if done:
-                        reward = -10
                     for tile in tiles_list:
                         weights[tile, action] = weights[tile, action] + alpha * (
                                 reward - estimate(tiles_list, action, weights))

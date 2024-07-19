@@ -6,6 +6,7 @@ import gymnasium as gym
 import numpy as np
 
 from app.tile_coding.my_tiles import IHT, tiles, estimate
+from app.utilities.config_utils import get_current_config, get_features
 from app.utilities.video_utils import record_videos
 from app.utilities.weights_handler import WeightsHandler
 
@@ -21,37 +22,7 @@ config_parser = configparser.ConfigParser()
 # Read the configuration file
 config_parser.read('config.ini')
 
-config = {
-    "observation": {
-        "type": "Kinematics",
-        "features": ["x", "y", "vx", "vy"],
-        "absolute": True,
-        "order": "sorted",
-        "vehicles_count": 4,  #max number of observable vehicles
-        "normalize": False
-    },
-    "action": {
-        "type": "DiscreteMetaAction",
-    },
-    "lanes_count": 3,
-    "vehicles_count": 18,  #max number of existing vehicles
-    "duration": 60,  # [s]
-    "initial_spacing": 2,
-    "collision_reward": -10,  # The reward received when colliding with a vehicle.
-    'normalize_reward': False,
-    "reward_speed_range": [28, 30],  # [m/s] The reward for high speed is mapped linearly from this range to [0,
-    # HighwayEnv.HIGH_SPEED_REWARD].
-    "simulation_frequency": 15,  # [Hz]
-    "policy_frequency": 1,  # [Hz]
-    "other_vehicles_type": "highway_env.vehicle.behavior.IDMVehicle",
-    "screen_width": 1200,  # [px]
-    "screen_height": 250,  # [px]
-    "centering_position": [0.1, 0.5],
-    "scaling": 5.5,
-    "show_trajectories": False,
-    "render_agent": False,
-    "offscreen_rendering": False
-}
+config = get_current_config()
 
 env = gym.make('highway-v0', render_mode='rgb_array')
 env.configure(config)
@@ -59,9 +30,8 @@ state, info = env.reset(seed=44)
 np.random.seed(44)
 random.seed(44)
 
-features = ["x", "y", "vx", "vy"]
 maxSize_proportion = int(config_parser['tilings']['maxSize_proportion'])
-maxSize = maxSize_proportion * config["observation"]["vehicles_count"] * len(features)
+maxSize = maxSize_proportion * config["observation"]["vehicles_count"] * len(get_features())
 iht = IHT(maxSize)
 numTilings = maxSize // maxSize_proportion
 
