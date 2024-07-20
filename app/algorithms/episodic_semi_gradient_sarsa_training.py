@@ -54,7 +54,7 @@ avg_return = 0
 seed_episodes = 0
 seed = cu.get_seed()
 for episode in range(num_Episodes):
-    print(f"#episodes {episode}, avg_reward {avg_return}")
+    print(f"#episodes {episode}, avg_reward {avg_return}, seed {seed}")
     done = False
     truncated = False
     # Choose A and state S
@@ -97,7 +97,7 @@ for episode in range(num_Episodes):
             action = action_p
             num_steps += 1
     seed_episodes += 1
-    avg_return += expected_return / seed_episodes
+    avg_return += (expected_return - avg_return) / seed_episodes
     if avg_return > 35:
         seed_episodes = 0
         avg_return = 0
