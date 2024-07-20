@@ -4,6 +4,7 @@ import gymnasium as gym
 import numpy as np
 import warnings
 import app.utilities.config_utils as cu
+import app.utilities.serialization_utils as su
 
 from matplotlib import pyplot as plt
 from app.utilities.video_utils import record_videos
@@ -117,4 +118,5 @@ for episode in range(num_Episodes):
 
 print(f"IHT usage: {iht.count()}/{iht.size}")
 weights_handler.save_weights(weights, "weights/true_online_td_lambda_weights")
+su.serilizeIHT(iht, "ihts/true_online_td_lambda_iht.pkl")
 env.close()

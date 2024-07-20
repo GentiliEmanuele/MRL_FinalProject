@@ -6,6 +6,7 @@ import numpy as np
 import warnings
 
 import app.utilities.config_utils as cu
+import app.utilities.serialization_utils as su
 
 from app.tile_coding.my_tiles import IHT, tiles
 from app.utilities.video_utils import record_videos
@@ -57,7 +58,7 @@ for episode in range(num_Episodes):
     tiles_list = tiles(iht, numTilings, state.flatten().tolist())
 
     # initialization A
-    action = cu.get_GLIE_action(epsilon, space_action_len, tiles_list, weights, random, episode, num_Episodes, env)
+    action = cu.get_GLIE_action(epsilon, tiles_list, weights, random, episode, num_Episodes, env)
 
     # initialization z
     traces = np.zeros((maxSize, space_action_len))
@@ -89,7 +90,7 @@ for episode in range(num_Episodes):
         else:
             # choose A'
             # action_p = get_e_greedy_action(epsilon, space_action_len, tiles_list_p, weights, random)
-            action_p = cu.get_GLIE_action(epsilon, space_action_len, tiles_list_p, weights, random, episode, num_Episodes, env)
+            action_p = cu.get_GLIE_action(epsilon, tiles_list_p, weights, random, episode, num_Episodes, env)
 
             # loop on new tiles
             for tile_p in tiles_list_p:
@@ -105,5 +106,6 @@ for episode in range(num_Episodes):
 
 print(f"IHT usage: {iht.count()}/{iht.size}")
 weights_handler.save_weights(weights, "weights/sarsa_lambda_weights")
+su.serilizeIHT(iht, "ihts/sarsa_lambda_iht.pkl")
 env.close()
 

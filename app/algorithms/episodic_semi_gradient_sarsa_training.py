@@ -9,6 +9,7 @@ from app.utilities.video_utils import record_videos
 import warnings
 from matplotlib import pyplot as plt
 import app.utilities.config_utils as cu
+import app.utilities.serialization_utils as su
 
 from app.utilities.weights_handler import WeightsHandler
 
@@ -93,10 +94,11 @@ for episode in range(num_Episodes):
 
 print(f"IHT usage: {iht.count()}/{iht.size}")
 weights_handler.save_weights(weights, "weights/episodic_semi_gradient_sarsa_weights")
+su.serilizeIHT(iht, "ihts/episodic_semi_gradient_sarsa_iht.pkl")
 env.close()
 
 ## ------------------------- INFERENCE -------------------------------
-if True:
+if False:
     env = gym.make('highway-v0', render_mode='rgb_array')
 
     # Config the env

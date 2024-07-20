@@ -7,6 +7,7 @@ import numpy as np
 from stable_baselines3 import DQN
 
 import app.utilities.config_utils as cu
+import app.utilities.serialization_utils as su
 
 from app.tile_coding.my_tiles import IHT, tiles
 from app.utilities.video_utils import record_videos
@@ -38,7 +39,6 @@ if True:
 
     maxSize = cu.get_max_size()
     numTilings = cu.get_num_tilings()
-    iht = IHT(maxSize)
 
     space_action_len = len(env.action_type.actions_indexes)
     weights_handler = WeightsHandler(maxSize, space_action_len)
@@ -49,32 +49,37 @@ if True:
     algorithm_type = int(config_parser['inference_algorithm']['type'])
     if algorithm_type == 1:
         print("Algorithm chosen: Episodic semi-gradient Sarsa")
-        filename = "algorithms/weights/episodic_semi_gradient_sarsa_weights.npy"
+        weights_filename = "algorithms/weights/episodic_semi_gradient_sarsa_weights.npy"
+        iht_filename = "algorithms/ihts/episodic_semi_gradient_sarsa_iht.pkl"
         inference_name = "Episodic Semi Gradient SARSA"
     elif algorithm_type == 2:
         print("Algorithm chosen: True online TD(lambda)")
-        filename = "algorithms/weights/true_online_td_lambda_weights.npy"
+        weights_filename = "algorithms/weights/true_online_td_lambda_weights.npy"
+        iht_filename = "algorithms/ihts/true_online_td_lambda_iht.pkl"
         inference_name = "True online TD Lambda"
     elif algorithm_type == 3:
         print("Algorithm chosen: Sarsa(lambda)")
-        filename = "algorithms/weights/sarsa_lambda_weights.npy"
+        weights_filename = "algorithms/weights/sarsa_lambda_weights.npy"
+        iht_filename = "algorithms/ihts/sarsa_lambda_iht.pkl"
         inference_name = "Sarsa Lambda"
     elif algorithm_type == 4:
         print("Algorithm chosen: DQN")
         special_type = "DQN"
-        filename = "algorithms/highway_dqn/model"
+        weights_filename = "algorithms/highway_dqn/model"
         inference_name = "DQN"
     else:
         print("Invalid configuration.\nAlgorithm chosen: Episodic semi-gradient Sarsa")
         raise Exception("Invalid name")
 
     if special_type == "DQN":
-        model = DQN.load(filename)
+        model = DQN.load(weights_filename)
     else:
-        weights = weights_handler.load_weights(filename)
+        weights = weights_handler.load_weights(weights_filename)
         if weights is None:
             print('Error in weights loading')
             exit(0)
+
+    iht = su.deserializeIHT(iht_filename)
 
 # -------------------------------- INFERENCE BEGIN ----------------------------
 inference_suffix = "Test inference"
