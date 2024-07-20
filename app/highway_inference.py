@@ -82,7 +82,7 @@ inference_runs = 30
 
 print_debug_each_step = False
 print_debug_each_iteration = True
-record_after_inference = 0
+record_after_inference = 30
 
 list_num_steps = np.zeros(inference_runs)
 list_avg_speed = np.zeros(inference_runs)
@@ -92,7 +92,7 @@ list_total_reward = np.zeros(inference_runs)
 round_metrics = 3
 
 for i in range(inference_runs):
-    state, info = env.reset(seed=(42+i))
+    state, info = env.reset(seed=(cu.get_seed()+1000+i))
 
     done = False
     truncated = False
@@ -242,9 +242,17 @@ print(t)
 # +--------------+-------+--------+
 
 # ID = 7 (from 6)
-# Episodic Semi Gradient SARSA-Test inference, maxSize:12288, numTilings:24
+# Episodic Semi Gradient SARSA-Test inference, maxSize:12288, numTilings:96
 # 1000 episodes, seed changing every iteration
 # alpha = 0.1 / numTilings
 # normalizeReward = False
 # collision_reward = -10
 # return get_max_size() // 128
+# +--------------+--------+--------+
+# |   Measure    |  Mean  | StdDev |
+# +--------------+--------+--------+
+# |  num_steps   |  52.5  | 26.495 |
+# |  avg_speed   |  0.29  | 0.033  |
+# |  avg_reward  | 0.295  | 0.203  |
+# | total_reward | 12.153 | 7.725  |
+# +--------------+--------+--------+
