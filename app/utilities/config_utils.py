@@ -33,5 +33,34 @@ def get_current_config():
     }
     return config
 
+
 def get_features():
     return ["x", "y", "vx", "vy"]
+
+
+def get_max_size():
+    return 1024 * len(get_features())
+
+
+def get_num_tilings():
+    return get_max_size() // 512
+
+
+def get_alpha():
+    return 0.1 / get_num_tilings()
+
+
+def get_epsilon0():
+    return 0.1
+
+
+def get_gamma():
+    return 0.9
+
+
+def get_lambda():
+    return 0.9
+
+
+def get_seed():
+    return 44
