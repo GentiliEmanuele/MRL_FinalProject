@@ -1,7 +1,4 @@
-from random import random, randint
-
 from app.tile_coding.my_tiles import estimate
-
 
 def get_current_config():
     config = {
@@ -52,7 +49,8 @@ def get_num_tilings():
 
 
 def get_alpha():
-    return 0.1 / get_num_tilings()
+    # return 0.1 / get_num_tilings()
+    return 0.1
 
 
 def get_epsilon0():
@@ -70,9 +68,9 @@ def get_lambda():
 def get_seed():
     return 44
 
-def get_e_greedy_action(epsilon, space_action_len, tiles_list, weights):
-    if random() < epsilon:
-        action = randint(0, space_action_len - 1)
+def get_e_greedy_action(epsilon, space_action_len, tiles_list, weights, random):
+    if random.random() < epsilon:
+        action = random.randint(0, space_action_len - 1)
     else:
         best_action = 0
         best_estimate = estimate(tiles_list, 0, weights)
@@ -82,6 +80,24 @@ def get_e_greedy_action(epsilon, space_action_len, tiles_list, weights):
                 best_estimate = actual_estimate
                 best_action = a
         action = best_action
+
+    return action
+
+
+def get_GLIE_action(epsilon, space_action_len, tiles_list, weights, random, episode, num_episode):
+    if random.random() < epsilon * (1 - episode / num_episode):
+        action = random.randint(0, space_action_len - 1)
+    else:
+        best_action = 0
+        best_estimate = estimate(tiles_list, 0, weights)
+        for a in range(1, space_action_len):
+            actual_estimate = estimate(tiles_list, a, weights)
+            if actual_estimate > best_estimate:
+                best_estimate = actual_estimate
+                best_action = a
+        action = best_action
+
+    return action
 
     return action
 
