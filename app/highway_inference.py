@@ -4,6 +4,8 @@ import warnings
 
 import gymnasium as gym
 import numpy as np
+from stable_baselines3 import DQN
+
 import app.utilities.config_utils as cu
 
 from app.tile_coding.my_tiles import IHT, tiles
@@ -41,6 +43,9 @@ if True:
     space_action_len = len(env.action_type.actions_indexes)
     weights_handler = WeightsHandler(maxSize, space_action_len)
 
+    special_type = ""
+    model = None
+    weights = None
     algorithm_type = int(config_parser['inference_algorithm']['type'])
     if algorithm_type == 1:
         print("Algorithm chosen: Episodic semi-gradient Sarsa")
@@ -54,28 +59,35 @@ if True:
         print("Algorithm chosen: Sarsa(lambda)")
         filename = "algorithms/weights/sarsa_lambda_weights.npy"
         inference_name = "Sarsa Lambda"
+    elif algorithm_type == 4:
+        print("Algorithm chosen: DQN")
+        special_type = "DQN"
+        filename = "algorithms/highway_dqn/model"
+        inference_name = "DQN"
     else:
         print("Invalid configuration.\nAlgorithm chosen: Episodic semi-gradient Sarsa")
         raise Exception("Invalid name")
 
-    weights = weights_handler.load_weights(filename)
-
-    if weights is None:
-        print('Error in weights loading')
-        exit(0)
+    if special_type == "DQN":
+        model = DQN.load(filename)
+    else:
+        weights = weights_handler.load_weights(filename)
+        if weights is None:
+            print('Error in weights loading')
+            exit(0)
 
 # -------------------------------- INFERENCE BEGIN ----------------------------
 inference_suffix = "Test inference"
-inference_runs = 10
+inference_runs = 30
 
 print_debug_each_step = False
 print_debug_each_iteration = True
-record_after_inference = 10
+record_after_inference = 29
 
-list_num_steps = np.zeros(10)
-list_avg_speed = np.zeros(10)
-list_avg_reward = np.zeros(10)
-list_total_reward = np.zeros(10)
+list_num_steps = np.zeros(inference_runs)
+list_avg_speed = np.zeros(inference_runs)
+list_avg_reward = np.zeros(inference_runs)
+list_total_reward = np.zeros(inference_runs)
 
 round_metrics = 3
 
@@ -97,7 +109,10 @@ for i in range(inference_runs):
         tiles_list = tiles(iht, numTilings, state.flatten().tolist())
 
         # Choose action
-        action = cu.get_e_greedy_action(0, space_action_len, tiles_list, weights, random)
+        if special_type == "DQN":
+            action, _ = model.predict(state, deterministic=True)
+        else:
+            action = cu.get_e_greedy_action(0, space_action_len, tiles_list, weights, random)
 
         # Simulate
         state, reward, done, truncated, info = env.step(action)

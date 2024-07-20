@@ -33,3 +33,5 @@ tzdata==2024.1
 urllib3==2.2.1
 
 prettytable~=3.10.2
+stable-baselines3==2.3.2
+tensorboard==2.17.0
