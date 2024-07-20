@@ -158,3 +158,36 @@ stddev_total_reward = round(np.std(list_total_reward), round_metrics)
 t.add_row(["total_reward", mean_total_reward, stddev_total_reward])
 
 print(t)
+
+# Episodic Semi Gradient SARSA-Test inference, maxSize:12288, numTilings:24
+# 1000 episodes, fixed seed
+# +--------------+--------+--------+
+# |   Measure    |  Mean  | StdDev |
+# +--------------+--------+--------+
+# |  num_steps   | 11.633 | 13.722 |
+# |  avg_speed   | 0.311  | 0.032  |
+# |  avg_reward  | 0.228  | 0.305  |
+# | total_reward | 2.311  | 3.036  |
+# +--------------+--------+--------+
+
+# Episodic Semi Gradient SARSA-Test inference, maxSize:12288, numTilings:24
+# 1000 episodes, seed changed once avg_expected_return > 20
+# +--------------+--------+--------+
+# |   Measure    |  Mean  | StdDev |
+# +--------------+--------+--------+
+# |  num_steps   | 12.267 | 10.856 |
+# |  avg_speed   |  0.32  | 0.031  |
+# |  avg_reward  | 0.423  | 0.249  |
+# | total_reward | 4.458  | 4.444  |
+# +--------------+--------+--------+
+
+# Episodic Semi Gradient SARSA-Test inference, maxSize:12288, numTilings:24
+# 1000 episodes, seed changing every iteration
+# +--------------+-------+--------+
+# |   Measure    |  Mean | StdDev |
+# +--------------+-------+--------+
+# |  num_steps   | 8.033 | 4.572  |
+# |  avg_speed   | 0.341 | 0.025  |
+# |  avg_reward  | 0.516 | 0.317  |
+# | total_reward | 4.847 | 4.191  |
+# +--------------+-------+--------+
