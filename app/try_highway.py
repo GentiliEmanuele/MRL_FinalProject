@@ -28,7 +28,7 @@ config = {
     },
     "lanes_count": 3,
     "vehicles_count": 20, #max number of existing vehicles
-    "duration": 72,  # [s]
+    "duration": 18,  # [s]
     "initial_spacing": 2,
     "collision_reward": -50,  # The reward received when colliding with a vehicle.
     "high_speed_reward": 0.3,
@@ -72,7 +72,7 @@ alpha = 0.1 / numTilings # step size
 epsilon_0 = 0.1
 epsilon = epsilon_0
 gamma = 0.9
-num_Episodes = 2000
+num_Episodes = 1000
 
 weights_handler = WeightsHandler(maxSize, space_action_len)
 weights = weights_handler.generate_weights()
@@ -82,15 +82,18 @@ config_parser = configparser.ConfigParser()
 # Read the configuration file
 config_parser.read('config.ini')
 
+avg_return = 0
+seed_episodes = 0
+seed = 44
 for episode in range(num_Episodes):
-    print("Episode", episode)
+    print(f"#episodes {episode}, avg_reward {avg_return}")
     done = False
     truncated = False
     # Choose A and state S
     action = env.action_type.actions_indexes["IDLE"]
-    state, info = env.reset(seed=44 + episode)
-    if episode == num_Episodes - 1:
-        config["duration"] = 80
+    state, info = env.reset(seed=seed)
+    if episode == num_Episodes - 20:
+        config["duration"] = 40
         env.configure(config)
         env = record_videos(env)
     # Debugging variables
@@ -127,10 +130,17 @@ for episode in range(num_Episodes):
             state = state_p
             action = action_p
             num_steps += 1
-        # epsilon = epsilon - epsilon_0 / num_Episodes
+    seed_episodes += 1
+    avg_return += expected_return / seed_episodes
+    if avg_return > 35:
+        seed_episodes = 0
+        avg_return = 0
+        seed = seed + episode
+        print(f"change seed {seed}")
 
-# weights_handler.save_weights(weights, "algorithms/weights/episodic_semi_gradient_sarsa_weights")
-      #-----------------------INFERENCE--------------------------
+# epsilon = epsilon - epsilon_0 / num_Episodes
+
+
 inference = True
 if inference:
     print("STO QUA")
