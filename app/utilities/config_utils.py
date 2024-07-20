@@ -21,7 +21,7 @@ def get_current_config():
         "reward_speed_range": [25, 30],  # [m/s] The reward for high speed is mapped linearly from this range to [0,
         # HighwayEnv.HIGH_SPEED_REWARD].
         "high_speed_reward": 1,
-        "normalize_reward": False,
+        "normalize_reward": True,
         "simulation_frequency": 15,  # [Hz]
         "policy_frequency": 1,  # [Hz]
         "other_vehicles_type": "highway_env.vehicle.behavior.IDMVehicle",
@@ -49,8 +49,8 @@ def get_num_tilings():
 
 
 def get_alpha():
-    # return 0.1 / get_num_tilings()
-    return 0.1
+    return 0.1 / get_num_tilings()
+    # return 0.1
 
 
 def get_epsilon0():
