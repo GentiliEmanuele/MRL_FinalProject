@@ -1,3 +1,5 @@
+from app.tile_coding.my_tiles import estimate
+
 def get_current_config():
     config = {
         "observation": {
@@ -33,5 +35,76 @@ def get_current_config():
     }
     return config
 
+
 def get_features():
     return ["x", "y", "vx", "vy"]
+
+
+def get_max_size():
+    return 1024 * len(get_features())
+
+
+def get_num_tilings():
+    return get_max_size() // 512
+
+
+def get_alpha():
+    # return 0.1 / get_num_tilings()
+    return 0.1
+
+
+def get_epsilon0():
+    return 0.1
+
+
+def get_gamma():
+    return 0.9
+
+
+def get_lambda():
+    return 0.9
+
+
+def get_seed():
+    return 44
+
+def get_e_greedy_action(epsilon, space_action_len, tiles_list, weights, random):
+    if random.random() < epsilon:
+        action = random.randint(0, space_action_len - 1)
+    else:
+        best_action = 0
+        best_estimate = estimate(tiles_list, 0, weights)
+        for a in range(1, space_action_len):
+            actual_estimate = estimate(tiles_list, a, weights)
+            if actual_estimate > best_estimate:
+                best_estimate = actual_estimate
+                best_action = a
+        action = best_action
+
+    return action
+
+
+def get_GLIE_action(epsilon, space_action_len, tiles_list, weights, random, episode, num_episode):
+    if random.random() < epsilon * (1 - episode / num_episode):
+        action = random.randint(0, space_action_len - 1)
+    else:
+        best_action = 0
+        best_estimate = estimate(tiles_list, 0, weights)
+        for a in range(1, space_action_len):
+            actual_estimate = estimate(tiles_list, a, weights)
+            if actual_estimate > best_estimate:
+                best_estimate = actual_estimate
+                best_action = a
+        action = best_action
+
+    return action
+
+    return action
+
+def get_status_message(done, truncated):
+    if done:
+        return "Crashed"
+    elif truncated:
+        return "Truncated"
+    else:
+        return "On going"
