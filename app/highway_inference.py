@@ -6,7 +6,7 @@ import gymnasium as gym
 import numpy as np
 import app.utilities.config_utils as cu
 
-from app.tile_coding.my_tiles import IHT, tiles, estimate
+from app.tile_coding.my_tiles import IHT, tiles
 from app.utilities.video_utils import record_videos
 from app.utilities.weights_handler import WeightsHandler
 from prettytable import PrettyTable
@@ -93,7 +93,7 @@ for i in range(inference_runs):
         tiles_list = tiles(iht, numTilings, state.flatten().tolist())
 
         # Choose action
-        action = cu.get_e_greedy_action(0, space_action_len, tiles_list, weights)
+        action = cu.get_e_greedy_action(0, space_action_len, tiles_list, weights, random)
 
         # Simulate
         state, reward, done, truncated, info = env.step(action)
