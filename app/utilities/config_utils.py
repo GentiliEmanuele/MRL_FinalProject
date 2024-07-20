@@ -1,4 +1,4 @@
-from random import random
+from random import random, randint
 
 from app.tile_coding.my_tiles import estimate
 
@@ -71,8 +71,8 @@ def get_seed():
     return 44
 
 def get_e_greedy_action(epsilon, space_action_len, tiles_list, weights):
-    if random.random() < epsilon:
-        action = random.randint(0, space_action_len - 1)
+    if random() < epsilon:
+        action = randint(0, space_action_len - 1)
     else:
         best_action = 0
         best_estimate = estimate(tiles_list, 0, weights)
