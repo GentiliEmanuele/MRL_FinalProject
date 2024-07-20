@@ -1,6 +1,5 @@
 import random
-import time
-
+import configparser
 import gymnasium as gym
 import numpy as np
 
@@ -73,11 +72,15 @@ alpha = 0.1 / numTilings # step size
 epsilon_0 = 0.1
 epsilon = epsilon_0
 gamma = 0.9
-num_Episodes = 200
+num_Episodes = 2000
 
 weights_handler = WeightsHandler(maxSize, space_action_len)
 weights = weights_handler.generate_weights()
 
+# Create a ConfigParser object
+config_parser = configparser.ConfigParser()
+# Read the configuration file
+config_parser.read('config.ini')
 
 for episode in range(num_Episodes):
     print("Episode", episode)
@@ -85,16 +88,23 @@ for episode in range(num_Episodes):
     truncated = False
     # Choose A and state S
     action = env.action_type.actions_indexes["IDLE"]
-    state, info = env.reset(seed=44)
+    state, info = env.reset(seed=44 + episode)
     if episode == num_Episodes - 1:
         config["duration"] = 80
         env.configure(config)
         env = record_videos(env)
+    # Debugging variables
+    num_steps = 0
+    expected_return = 0
     while not done and not truncated:
         # tiles_list of initial state
         tiles_list = tiles(iht, numTilings, state.flatten().tolist())
         # Take action A, observe R, S'
         state_p, reward, done, truncated, info = env.step(action)
+        expected_return += reward
+        if done or truncated:
+            print("Episode finished after {} timesteps, crashed? {}".format(num_steps, done))
+            print("Expected return {}".format(expected_return))
         if done:
             for tile in tiles_list:
                 weights[tile, action] = weights[tile, action] + alpha * (reward - estimate(tiles_list, action, weights))
@@ -116,9 +126,67 @@ for episode in range(num_Episodes):
                 weights[tile, action] = weights[tile, action] + alpha*(reward + gamma * estimate(tiles_list_p, action_p, weights) - estimate(tiles_list, action, weights))
             state = state_p
             action = action_p
-        epsilon = epsilon - epsilon_0 / num_Episodes
+            num_steps += 1
+        # epsilon = epsilon - epsilon_0 / num_Episodes
 
-weights_handler.save_weights(weights, "algorithms/weights/episodic_semi_gradient_sarsa_weights")
+# weights_handler.save_weights(weights, "algorithms/weights/episodic_semi_gradient_sarsa_weights")
+      #-----------------------INFERENCE--------------------------
+inference = True
+if inference:
+    print("STO QUA")
+    env.close()
+    env = gym.make('highway-v0', render_mode='rgb_array')
+    env.configure(config)
+    state, info = env.reset(seed=42)
+    np.random.seed(44)
+    random.seed(44)
+
+    features = ["x", "y", "vx", "vy"]
+    maxSize_proportion = int(config_parser['tilings']['maxSize_proportion'])
+    maxSize = maxSize_proportion * config["observation"]["vehicles_count"] * len(features)
+    iht = IHT(maxSize)
+    numTilings = maxSize // maxSize_proportion
+
+    space_action_len = len(env.action_type.actions_indexes)
+
+    avg_avg_speed = 0
+    avg_num_steps = 0
+    inference_runs = 10
+
+    for i in range(10):
+        state, info = env.reset(seed=(42+i))
+        action = env.action_type.actions_indexes["IDLE"]
+
+        done = False
+        truncated = False
+        avg_speed = 0
+        num_steps = 0
+        env.configure(config)
+        if False and i == 0:
+            env = record_videos(env)
+        while not done and not truncated:
+            tiles_list = tiles(iht, numTilings, state.flatten().tolist())
+
+            best_action = 0
+            best_estimate = estimate(tiles_list, 0, weights)
+            for a in range(1, space_action_len):
+                actual_estimate = estimate(tiles_list, a, weights)
+                if actual_estimate > best_estimate:
+                    best_estimate = actual_estimate
+                    best_action = a
+            action = best_action
+
+            num_steps += 1
+            avg_speed = ((num_steps-1)*avg_speed + state[0][2]) / num_steps
+
+            state, reward, done, truncated, info = env.step(action)
+        avg_avg_speed += avg_speed / inference_runs
+        avg_num_steps += num_steps / inference_runs
+        print(f"Inference {i} -> avg_speed: {avg_speed}, num_steps: {num_steps}")
+
+    print("Average avg_speed: {}, Average num_steps={}".format(avg_avg_speed, avg_num_steps))
+    #-----------------------------END INFERENCE-------------------------------
+
 
 print(weights)
 env.close()
