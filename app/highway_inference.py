@@ -41,7 +41,7 @@ if True:
     space_action_len = len(env.action_type.actions_indexes)
     weights_handler = WeightsHandler(maxSize, space_action_len)
 
-    algorithm_type = int(config_parser['algorithm']['type'])
+    algorithm_type = int(config_parser['inference_algorithm']['type'])
     if algorithm_type == 1:
         print("Algorithm chosen: Episodic semi-gradient Sarsa")
         filename = "algorithms/weights/episodic_semi_gradient_sarsa_weights.npy"
@@ -50,6 +50,10 @@ if True:
         print("Algorithm chosen: True online TD(lambda)")
         filename = "algorithms/weights/true_online_td_lambda_weights.npy"
         inference_name = "True online TD Lambda"
+    elif algorithm_type == 3:
+        print("Algorithm chosen: Sarsa(lambda)")
+        filename = "algorithms/weights/sarsa_lambda_weights.npy"
+        inference_name = "Sarsa Lambda"
     else:
         print("Invalid configuration.\nAlgorithm chosen: Episodic semi-gradient Sarsa")
         raise Exception("Invalid name")

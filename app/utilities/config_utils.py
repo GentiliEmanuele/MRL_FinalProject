@@ -41,7 +41,7 @@ def get_features():
 
 
 def get_max_size():
-    return 1024 * len(get_features())
+    return 1024 * len(get_features()) * 3
 
 
 def get_num_tilings():
@@ -67,6 +67,7 @@ def get_lambda():
 
 def get_seed():
     return 44
+
 
 def get_e_greedy_action(epsilon, space_action_len, tiles_list, weights, random):
     if random.random() < epsilon:
@@ -99,7 +100,6 @@ def get_GLIE_action(epsilon, space_action_len, tiles_list, weights, random, epis
 
     return action
 
-    return action
 
 def get_status_message(done, truncated):
     if done:
