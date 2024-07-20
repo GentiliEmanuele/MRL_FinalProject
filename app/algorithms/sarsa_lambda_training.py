@@ -4,10 +4,10 @@ import random
 import gymnasium as gym
 import numpy as np
 import warnings
+
 import app.utilities.config_utils as cu
 
-from app.tile_coding.my_tiles import IHT, tiles, estimate
-from matplotlib import pyplot as plt
+from app.tile_coding.my_tiles import IHT, tiles
 from app.utilities.video_utils import record_videos
 from app.utilities.weights_handler import WeightsHandler
 
@@ -24,10 +24,6 @@ env.configure(config)
 state, info = env.reset(seed=cu.get_seed())
 np.random.seed(cu.get_seed())
 random.seed(cu.get_seed())
-
-# See initial configuration
-plt.imshow(env.render())
-plt.show()
 
 done = False
 truncated = False
@@ -46,6 +42,8 @@ num_Episodes = 1000
 weights_handler = WeightsHandler(maxSize, space_action_len)
 weights = weights_handler.generate_weights()
 
+
+
 print(iht.size)
 
 for episode in range(num_Episodes):
@@ -59,7 +57,7 @@ for episode in range(num_Episodes):
     tiles_list = tiles(iht, numTilings, state.flatten().tolist())
 
     # initialization A
-    action = cu.get_GLIE_action(epsilon, space_action_len, tiles_list, weights, random, episode, num_Episodes)
+    action = cu.get_GLIE_action(epsilon, space_action_len, tiles_list, weights, random, episode, num_Episodes, env)
 
     # initialization z
     traces = np.zeros((maxSize, space_action_len))
@@ -91,7 +89,7 @@ for episode in range(num_Episodes):
         else:
             # choose A'
             # action_p = get_e_greedy_action(epsilon, space_action_len, tiles_list_p, weights, random)
-            action_p = cu.get_GLIE_action(epsilon, space_action_len, tiles_list_p, weights, random, episode, num_Episodes)
+            action_p = cu.get_GLIE_action(epsilon, space_action_len, tiles_list_p, weights, random, episode, num_Episodes, env)
 
             # loop on new tiles
             for tile_p in tiles_list_p:

@@ -69,13 +69,15 @@ def get_seed():
     return 44
 
 
-def get_e_greedy_action(epsilon, space_action_len, tiles_list, weights, random):
+def get_e_greedy_action(epsilon, space_action_len, tiles_list, weights, random, env):
+    available_action = env.action_type.get_available_actions()
     if random.random() < epsilon:
-        action = random.randint(0, space_action_len - 1)
+        action_index = random.randint(0, len(available_action) - 1)
+        action = available_action[action_index]
     else:
-        best_action = 0
-        best_estimate = estimate(tiles_list, 0, weights)
-        for a in range(1, space_action_len):
+        best_action = available_action[0]
+        best_estimate = estimate(tiles_list, available_action[0], weights)
+        for a in available_action[1:]:
             actual_estimate = estimate(tiles_list, a, weights)
             if actual_estimate > best_estimate:
                 best_estimate = actual_estimate
@@ -85,13 +87,15 @@ def get_e_greedy_action(epsilon, space_action_len, tiles_list, weights, random):
     return action
 
 
-def get_GLIE_action(epsilon, space_action_len, tiles_list, weights, random, episode, num_episode):
-    if random.random() < epsilon * (1 - episode / num_episode):
-        action = random.randint(0, space_action_len - 1)
+def get_GLIE_action(epsilon, space_action_len, tiles_list, weights, random, episode, num_episodes, env):
+    available_action = env.action_type.get_available_actions()
+    if random.random() < epsilon * (1 - episode / num_episodes):
+        action_index = random.randint(0, len(available_action) - 1)
+        action = available_action[action_index]
     else:
-        best_action = 0
-        best_estimate = estimate(tiles_list, 0, weights)
-        for a in range(1, space_action_len):
+        best_action = available_action[0]
+        best_estimate = estimate(tiles_list, available_action[0], weights)
+        for a in available_action[1:]:
             actual_estimate = estimate(tiles_list, a, weights)
             if actual_estimate > best_estimate:
                 best_estimate = actual_estimate
