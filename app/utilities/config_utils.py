@@ -82,3 +82,13 @@ def get_e_greedy_action(epsilon, space_action_len, tiles_list, weights):
                 best_estimate = actual_estimate
                 best_action = a
         action = best_action
+
+    return action
+
+def get_status_message(done, truncated):
+    if done:
+        return "Crashed"
+    elif truncated:
+        return "Truncated"
+    else:
+        return "On going"
