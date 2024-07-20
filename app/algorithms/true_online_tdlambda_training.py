@@ -116,5 +116,5 @@ for episode in range(num_Episodes):
     print(f"Episode: {episode}, Num steps: {num_steps}")
 
 print(f"IHT usage: {iht.count()}/{iht.size}")
-weights_handler.save_weights(weights, "algorithms/weights/true_online_td_lambda_weights")
+weights_handler.save_weights(weights, "weights/true_online_td_lambda_weights")
 env.close()
