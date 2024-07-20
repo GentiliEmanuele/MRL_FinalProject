@@ -14,14 +14,14 @@ def get_current_config():
             "type": "DiscreteMetaAction",
         },
         "lanes_count": 3,
-        "vehicles_count": 10,  # max number of existing vehicles
+        "vehicles_count": 20,  # max number of existing vehicles
         "duration": 72,  # [s]
         "initial_spacing": 2,
-        "collision_reward": -1,  # The reward received when colliding with a vehicle.
+        "collision_reward": -10,  # The reward received when colliding with a vehicle.
         "reward_speed_range": [25, 30],  # [m/s] The reward for high speed is mapped linearly from this range to [0,
         # HighwayEnv.HIGH_SPEED_REWARD].
         "high_speed_reward": 1,
-        "normalize_reward": True,
+        "normalize_reward": False,
         "simulation_frequency": 15,  # [Hz]
         "policy_frequency": 1,  # [Hz]
         "other_vehicles_type": "highway_env.vehicle.behavior.IDMVehicle",
@@ -35,6 +35,11 @@ def get_current_config():
     }
     return config
 
+def get_inference_config():
+    config = get_current_config()
+    config["normalize_reward"] = False
+    config["collision_reward"] = -1
+    return config
 
 def get_features():
     return ["x", "y", "vx", "vy"]
@@ -45,7 +50,7 @@ def get_max_size():
 
 
 def get_num_tilings():
-    return get_max_size() // 512
+    return get_max_size() // 128
 
 
 def get_alpha():
@@ -69,7 +74,7 @@ def get_seed():
     return 44
 
 
-def get_e_greedy_action(epsilon, space_action_len, tiles_list, weights, random, env):
+def get_e_greedy_action(epsilon, tiles_list, weights, random, env):
     available_action = env.action_type.get_available_actions()
     if random.random() < epsilon:
         action_index = random.randint(0, len(available_action) - 1)
@@ -87,7 +92,7 @@ def get_e_greedy_action(epsilon, space_action_len, tiles_list, weights, random, 
     return action
 
 
-def get_GLIE_action(epsilon, space_action_len, tiles_list, weights, random, episode, num_episodes, env):
+def get_GLIE_action(epsilon, tiles_list, weights, random, episode, num_episodes, env):
     available_action = env.action_type.get_available_actions()
     if random.random() < epsilon * (1 - episode / num_episodes):
         action_index = random.randint(0, len(available_action) - 1)

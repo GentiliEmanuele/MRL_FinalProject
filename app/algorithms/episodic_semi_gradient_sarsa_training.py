@@ -25,10 +25,6 @@ state, info = env.reset(seed=cu.get_seed())
 np.random.seed(cu.get_seed())
 random.seed(cu.get_seed())
 
-# See initial configuration
-plt.imshow(env.render())
-plt.show()
-
 done = False
 truncated = False
 
@@ -80,31 +76,21 @@ for episode in range(num_Episodes):
         else:
             tiles_list_p = tiles(iht, numTilings, state_p.flatten().tolist())
             # Choose A' as a function of q(s, ., w) (e.g e-greedy)
-            if random.random() < epsilon:
-                action_p = random.randint(0, space_action_len - 1)
-            else:
-                best_action = 0
-                best_estimate = estimate(tiles_list_p, 0, weights)
-                for a in range(0, space_action_len):
-                    actual_estimate = estimate(tiles_list_p, a, weights)
-                    if actual_estimate > best_estimate:
-                        best_estimate = actual_estimate
-                        best_action = a
-                action_p = best_action
+            action_p = cu.get_e_greedy_action(epsilon, tiles_list_p, weights, random, env)
             for tile in tiles_list:
                 weights[tile, action] = weights[tile, action] + alpha*(reward + gamma * estimate(tiles_list_p, action_p, weights) - estimate(tiles_list, action, weights))
             state = state_p
             action = action_p
             num_steps += 1
     seed_episodes += 1
-    # avg_return += expected_return / seed_episodes
-    avg_return += (expected_return - avg_return) / seed_episodes
-    if avg_return > 35:
+    avg_return += (expected_return - avg_return) * 0.2
+    if True or avg_return > -1:
         seed_episodes = 0
-        avg_return = 0
-        seed = seed + episode
-        print(f"change seed {seed}")
+        # avg_return = 0
+        seed = seed + 1
+        # print(f"change seed {seed}")
 
 print(f"IHT usage: {iht.count()}/{iht.size}")
 weights_handler.save_weights(weights, "weights/episodic_semi_gradient_sarsa_weights")
 env.close()
+

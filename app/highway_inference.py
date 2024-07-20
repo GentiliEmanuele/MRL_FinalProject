@@ -29,7 +29,7 @@ if True:
     env = gym.make('highway-v0', render_mode='rgb_array')
 
     # Config the env
-    config = cu.get_current_config()
+    config = cu.get_inference_config()
     env.configure(config)
 
     # Reset seed
@@ -82,7 +82,7 @@ inference_runs = 30
 
 print_debug_each_step = False
 print_debug_each_iteration = True
-record_after_inference = 29
+record_after_inference = 0
 
 list_num_steps = np.zeros(inference_runs)
 list_avg_speed = np.zeros(inference_runs)
@@ -97,9 +97,9 @@ for i in range(inference_runs):
     done = False
     truncated = False
     num_steps = 0
-    avg_speed = 0
-    avg_reward = 0
-    total_reward = 0
+    avg_speed = 0.0
+    avg_reward = 0.0
+    total_reward = 0.0
 
     if i == record_after_inference:
         env = record_videos(env)
@@ -112,7 +112,7 @@ for i in range(inference_runs):
         if special_type == "DQN":
             action, _ = model.predict(state, deterministic=True)
         else:
-            action = cu.get_e_greedy_action(0, space_action_len, tiles_list, weights, random)
+            action = cu.get_e_greedy_action(-1, tiles_list, weights, random, env)
 
         # Simulate
         state, reward, done, truncated, info = env.step(action)
@@ -159,8 +159,10 @@ t.add_row(["total_reward", mean_total_reward, stddev_total_reward])
 
 print(t)
 
+# ID = 1
 # Episodic Semi Gradient SARSA-Test inference, maxSize:12288, numTilings:24
 # 1000 episodes, fixed seed
+# alpha = 0.1
 # +--------------+--------+--------+
 # |   Measure    |  Mean  | StdDev |
 # +--------------+--------+--------+
@@ -170,8 +172,10 @@ print(t)
 # | total_reward | 2.311  | 3.036  |
 # +--------------+--------+--------+
 
+# ID = 2
 # Episodic Semi Gradient SARSA-Test inference, maxSize:12288, numTilings:24
 # 1000 episodes, seed changed once avg_expected_return > 20
+# alpha = 0.1
 # +--------------+--------+--------+
 # |   Measure    |  Mean  | StdDev |
 # +--------------+--------+--------+
@@ -181,8 +185,10 @@ print(t)
 # | total_reward | 4.458  | 4.444  |
 # +--------------+--------+--------+
 
+# ID = 3
 # Episodic Semi Gradient SARSA-Test inference, maxSize:12288, numTilings:24
 # 1000 episodes, seed changing every iteration
+# alpha = 0.1
 # +--------------+-------+--------+
 # |   Measure    |  Mean | StdDev |
 # +--------------+-------+--------+
@@ -191,3 +197,54 @@ print(t)
 # |  avg_reward  | 0.516 | 0.317  |
 # | total_reward | 4.847 | 4.191  |
 # +--------------+-------+--------+
+
+# ID = 4
+# Episodic Semi Gradient SARSA-Test inference, maxSize:12288, numTilings:24
+# 1000 episodes, seed changing every iteration
+# alpha = 0.1 / numTilings
+# normalizeReward = False
+# collision_reward = -1
+# +--------------+-------+--------+
+# |   Measure    |  Mean | StdDev |
+# +--------------+-------+--------+
+# |  num_steps   | 7.833 | 5.229  |
+# |  avg_speed   | 0.341 | 0.023  |
+# |  avg_reward  |  0.59 | 0.288  |
+# | total_reward | 5.674 | 5.668  |
+# +--------------+-------+--------+
+
+# ID = 5 (from 4)
+# Episodic Semi Gradient SARSA-Test inference, maxSize:12288, numTilings:24
+# 1000 episodes, seed changing every iteration
+# alpha = 0.1 / numTilings
+# normalizeReward = True
+# +--------------+--------+--------+
+# |   Measure    |  Mean  | StdDev |
+# +--------------+--------+--------+
+# |  num_steps   | 42.433 | 31.706 |
+# |  avg_speed   | 0.269  | 0.019  |
+# |  avg_reward  | -0.002 | 0.108  |
+# | total_reward | 2.848  | 3.252  |
+# +--------------+--------+--------+
+
+# ID = 6 (from 4)
+# Episodic Semi Gradient SARSA-Test inference, maxSize:12288, numTilings:24
+# 1000 episodes, seed changing every iteration
+# alpha = 0.1 / numTilings
+# normalizeReward = False
+# collision_reward = -10
+# return get_max_size() // 512
+# +--------------+-------+--------+
+# |  num_steps   | 8.467 | 5.915  |
+# |  avg_speed   | 0.328 | 0.025  |
+# |  avg_reward  |  0.41 | 0.339  |
+# | total_reward | 4.081 |  4.41  |
+# +--------------+-------+--------+
+
+# ID = 7 (from 6)
+# Episodic Semi Gradient SARSA-Test inference, maxSize:12288, numTilings:24
+# 1000 episodes, seed changing every iteration
+# alpha = 0.1 / numTilings
+# normalizeReward = False
+# collision_reward = -10
+# return get_max_size() // 128
