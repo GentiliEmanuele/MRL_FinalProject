@@ -6,6 +6,7 @@ import gymnasium as gym
 import numpy as np
 
 from app.tile_coding.my_tiles import IHT, tiles, estimate
+from app.utilities.config_utils import get_current_config, get_features
 from app.utilities.video_utils import record_videos
 from app.utilities.weights_handler import WeightsHandler
 
@@ -21,49 +22,20 @@ config_parser = configparser.ConfigParser()
 # Read the configuration file
 config_parser.read('config.ini')
 
-config = {
-    "observation": {
-        "type": "Kinematics",
-        "features": ["x", "y", "vx", "vy"],
-        "absolute": True,
-        "order": "sorted",
-        "vehicles_count": 4,  #max number of observable vehicles
-        "normalize": False
-    },
-    "action": {
-        "type": "DiscreteMetaAction",
-    },
-    "lanes_count": 3,
-    "vehicles_count": 18,  #max number of existing vehicles
-    "duration": 60,  # [s]
-    "initial_spacing": 2,
-    "collision_reward": -10,  # The reward received when colliding with a vehicle.
-    'normalize_reward': False,
-    "reward_speed_range": [28, 30],  # [m/s] The reward for high speed is mapped linearly from this range to [0,
-    # HighwayEnv.HIGH_SPEED_REWARD].
-    "simulation_frequency": 15,  # [Hz]
-    "policy_frequency": 1,  # [Hz]
-    "other_vehicles_type": "highway_env.vehicle.behavior.IDMVehicle",
-    "screen_width": 1200,  # [px]
-    "screen_height": 250,  # [px]
-    "centering_position": [0.1, 0.5],
-    "scaling": 5.5,
-    "show_trajectories": False,
-    "render_agent": False,
-    "offscreen_rendering": False
-}
+config = get_current_config()
 
 env = gym.make('highway-v0', render_mode='rgb_array')
 env.configure(config)
-state, info = env.reset(seed=44)
+state, info = env.reset(seed=42)
 np.random.seed(44)
 random.seed(44)
 
-features = ["x", "y", "vx", "vy"]
-maxSize_proportion = int(config_parser['tilings']['maxSize_proportion'])
-maxSize = maxSize_proportion * config["observation"]["vehicles_count"] * len(features)
+# optimal number of features (maxSize) per non fare hashing e vedere se facendo hashing le performance dell'algoritmo
+# degradano
+maxSize = 1024 * 12
 iht = IHT(maxSize)
-numTilings = maxSize // maxSize_proportion
+# according to Sutton example we keep the ratio between maxSize and numTilings as 1 / 256
+numTilings = maxSize // 512  # according to Sutton example we keep the ratio between maxSize and numTilings as 1 / 156
 
 space_action_len = len(env.action_type.actions_indexes)
 weights_handler = WeightsHandler(maxSize, space_action_len)
@@ -85,38 +57,56 @@ if weights is None:
     print('Error in weights loading')
     exit(0)
 
-for i in range(10):
-    state, info = env.reset(seed=(42 + i))
-    action = env.action_type.actions_indexes["IDLE"]
-
-    done = False
-    truncated = False
-    avg_speed = 0
-    num_steps = 0
+inference = True
+if inference:
+    print("STO QUA")
+    env.close()
+    env = gym.make('highway-v0', render_mode='rgb_array')
     env.configure(config)
-    if False and i == 0:
-        env = record_videos(env)
-    while not done and not truncated:
-        tiles_list = tiles(iht, numTilings, state.flatten().tolist())
+    state, info = env.reset(seed=42)
+    env = record_videos(env)
+    np.random.seed(44)
+    random.seed(44)
 
-        best_action = 0
-        best_estimate = estimate(tiles_list, 0, weights)
-        for a in range(1, space_action_len):
-            actual_estimate = estimate(tiles_list, a, weights)
-            if actual_estimate > best_estimate:
-                best_estimate = actual_estimate
-                best_action = a
-        action = best_action
+    iht = IHT(maxSize)
 
-        num_steps += 1
-        avg_speed = ((num_steps - 1) * avg_speed + state[0][2]) / num_steps
+    avg_avg_speed = 0
+    avg_num_steps = 0
+    inference_runs = 10
 
-        state, reward, done, truncated, info = env.step(action)
-    # -----------------------------END INFERENCE-------------------------------
+    for i in range(10):
+        state, info = env.reset(seed=(42+i))
+        action = env.action_type.actions_indexes["IDLE"]
 
-    print(f"Inference {i} -> avg_speed: {avg_speed}, num_steps: {num_steps}")
+        done = False
+        truncated = False
+        avg_speed = 0
+        num_steps = 0
+        env.configure(config)
+        if False and i == 0:
+            env = record_videos(env)
+        while not done and not truncated:
+            tiles_list = tiles(iht, numTilings, state.flatten().tolist())
 
-    # ------------------------------- RESULTS -----------------------------
+            best_action = 0
+            best_estimate = estimate(tiles_list, 0, weights)
+            for a in range(1, space_action_len):
+                actual_estimate = estimate(tiles_list, a, weights)
+                if actual_estimate > best_estimate:
+                    best_estimate = actual_estimate
+                    best_action = a
+            action = best_action
+
+            num_steps += 1
+            avg_speed = ((num_steps-1)*avg_speed + state[0][2]) / num_steps
+
+            state, reward, done, truncated, info = env.step(action)
+        avg_avg_speed += avg_speed / inference_runs
+        avg_num_steps += num_steps / inference_runs
+        print(f"Inference {i} -> avg_speed: {avg_speed}, num_steps: {num_steps}")
+
+    print("Average avg_speed: {}, Average num_steps={}".format(avg_avg_speed, avg_num_steps))
+    #-----------------------------END INFERENCE-------------------------------
     # Algorithm
     # chosen: Episodic
     # semi - gradient

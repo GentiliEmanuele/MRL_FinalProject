@@ -3,6 +3,7 @@ import configparser
 import numpy as np
 
 from app.tile_coding.my_tiles import IHT, tiles, estimate
+from app.utilities.config_utils import get_features
 from app.utilities.video_utils import record_videos
 from matplotlib import pyplot as plt
 import gymnasium as gym
@@ -24,15 +25,12 @@ class episodic_semi_gradient_sarsa():
         plt.imshow(env.render())
         plt.show()
 
-        features = ["x", "y", "vx", "vy"]
-
         # optimal number of features (maxSize) per non fare hashing e vedere se facendo hashing le performance dell'algoritmo
         # degradano
-        maxSize_proportion = int(config_parser['tilings']['maxSize_proportion'])
-        maxSize = maxSize_proportion * config["observation"]["vehicles_count"] * len(features)
+        maxSize = 1024 * 12
         iht = IHT(maxSize)
         # according to Sutton example we keep the ratio between maxSize and numTilings as 1 / 256
-        numTilings = maxSize // maxSize_proportion
+        numTilings = maxSize // 512  # according to Sutton example we keep the ratio between maxSize and numTilings as 1 / 156
 
         space_action_len = len(env.action_type.actions_indexes)
         weights_handler = WeightsHandler(maxSize, space_action_len)
@@ -49,12 +47,8 @@ class episodic_semi_gradient_sarsa():
             print("Episode", episode)
             done = False
             truncated = False
-            if episode % 50 == 0 and episode != 0:
+            if episode == num_Episodes - 3:
                 env = record_videos(env)
-
-            if episode % 50 == 1:
-                env = gym.make('highway-v0', render_mode='rgb_array')
-                env.configure(config)
 
             state, info = env.reset(seed=42 + episode)
             action = env.action_type.actions_indexes["IDLE"]
@@ -69,12 +63,12 @@ class episodic_semi_gradient_sarsa():
                 tiles_list = tiles(iht, numTilings, state.flatten().tolist())
                 # Take action A, observe R, S'
                 state_p, reward, done, truncated, info = env.step(action)
+                if done:
+                    reward = -36
                 expected_return += reward
                 if done or truncated:
                     print("Episode finished after {} timesteps, crashed? {}".format(num_steps, done))
                     print("Expected return {}".format(expected_return))
-                    if done:
-                        reward = -10
                     for tile in tiles_list:
                         weights[tile, action] = weights[tile, action] + alpha * (
                                 reward - estimate(tiles_list, action, weights))
@@ -109,16 +103,11 @@ class episodic_semi_gradient_sarsa():
             env = gym.make('highway-v0', render_mode='rgb_array')
             env.configure(config)
             state, info = env.reset(seed=42)
+            env = record_videos(env)
             np.random.seed(44)
             random.seed(44)
 
-            features = ["x", "y", "vx", "vy"]
-            maxSize_proportion = int(config_parser['tilings']['maxSize_proportion'])
-            maxSize = maxSize_proportion * config["observation"]["vehicles_count"] * len(features)
             iht = IHT(maxSize)
-            numTilings = maxSize // maxSize_proportion
-
-            space_action_len = len(env.action_type.actions_indexes)
 
             avg_avg_speed = 0
             avg_num_steps = 0
@@ -167,3 +156,27 @@ class episodic_semi_gradient_sarsa():
         print(f"Equals? {np.array_equal(weights, saved_weights)}")
 
         return weights
+
+    # Inference
+    # 0 -> avg_speed: 0.3125, num_steps: 27
+    # Inference
+    # 1 -> avg_speed: 0.3125, num_steps: 4
+    # Inference
+    # 2 -> avg_speed: 0.3125, num_steps: 14
+    # Inference
+    # 3 -> avg_speed: 0.3125, num_steps: 14
+    # Inference
+    # 4 -> avg_speed: 0.3125, num_steps: 18
+    # Inference
+    # 5 -> avg_speed: 0.3125, num_steps: 16
+    # Inference
+    # 6 -> avg_speed: 0.3125, num_steps: 13
+    # Inference
+    # 7 -> avg_speed: 0.3125, num_steps: 23
+    # Inference
+    # 8 -> avg_speed: 0.3125, num_steps: 7
+    # Inference
+    # 9 -> avg_speed: 0.3125, num_steps: 17
+    # Average
+    # avg_speed: 0.3125, Average
+    # num_steps = 15.3
