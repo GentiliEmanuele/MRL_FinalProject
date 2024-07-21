@@ -1,3 +1,4 @@
+import datetime
 import random
 import gymnasium as gym
 import numpy as np
@@ -38,13 +39,16 @@ weights_handler = WeightsHandler(maxSize, space_action_len)
 weights = weights_handler.generate_weights()
 
 avg_return = 0
-seed_episodes = 0
+avg_num_steps = 0
 seed = cu.get_seed()
+
+print(f"ID: {filename_suffix}")
+begin = datetime.datetime.now()
 for episode in range(num_Episodes):
-    print("\nEpisode {}, avg_reward {:.3f}, seed {}, IHT usage: {}/{} ≈ {}%".format(
-        episode, avg_return, seed, iht.count(), iht.size, round(iht.count()/iht.size*100, 2)))
-    done = False
-    truncated = False
+    run_time = round((datetime.datetime.now() - begin).total_seconds() / 60, 1)
+    print("\nEpisode {}, avg_reward {:.3f}, avg_num_steps {:.3f}, seed {}, IHT usage: {}/{} ≈ {}%, run time: {} min".format(
+        episode, avg_return, avg_num_steps, seed, iht.count(), iht.size, round(iht.count()/iht.size*100, 2), run_time))
+    done = truncated = False
     # Choose A and state S
     action = env.action_type.actions_indexes["IDLE"]
     state, info, _ = stu.custom_reset(env, cu.get_seed())
@@ -56,6 +60,7 @@ for episode in range(num_Episodes):
     while not done and not truncated:
         # tiles_list of initial state
         tiles_list = tiles(iht, numTilings, state)
+        estimate_value = estimate(tiles_list, action, weights)
         # Take action A, observe R, S'
         state_p, reward, done, truncated, info, _ = stu.custom_step(env, action)
         expected_return += reward
@@ -64,25 +69,21 @@ for episode in range(num_Episodes):
                 num_steps, expected_return, done))
         if done:
             for tile in tiles_list:
-                weights[tile, action] = weights[tile, action] + alpha * (reward - estimate(tiles_list, action, weights))
+                weights[tile, action] = weights[tile, action] + alpha * (reward - estimate_value)
         else:
             tiles_list_p = tiles(iht, numTilings, state_p)
             # Choose A' as a function of q(s, ., w) (e.g e-greedy)
             action_p = cu.get_e_greedy_action(epsilon, tiles_list_p, weights, random, env)
+            estimate_value_p = estimate(tiles_list_p, action_p, weights)
             for tile in tiles_list:
                 weights[tile, action] = weights[tile, action] + alpha * (
-                        reward + gamma * estimate(tiles_list_p, action_p, weights) - estimate(tiles_list, action,
-                                                                                              weights))
+                        reward + gamma * estimate_value_p - estimate_value)
             state = state_p
             action = action_p
             num_steps += 1
-    seed_episodes += 1
+    avg_num_steps += (num_steps - avg_num_steps) * 0.125
     avg_return += (expected_return - avg_return) * 0.125
-    if True or avg_return > -1:
-        seed_episodes = 0
-        # avg_return = 0
-        seed = seed + 1
-        # print(f"change seed {seed}")
+    seed += 1
 
 
 weights_handler.save_weights(weights, f"weights/episodic_semi_gradient_sarsa_weights{filename_suffix}")

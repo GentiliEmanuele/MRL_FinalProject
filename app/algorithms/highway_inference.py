@@ -32,9 +32,7 @@ if True:
 
     # Config the env
     cu = ConfigUtils()
-    # TODO: fix using get_inference_config
     config, filename_suffix, maxSize, numTilings = cu.get_inference_config()
-    #config, filename_suffix, maxSize, numTilings, alpha, epsilon, gamma, lambda_, num_Episodes = cu.get_current_config()
     stu.custom_configure(env, config)
 
     # Reset seed
@@ -88,7 +86,7 @@ if True:
 inference_suffix = "Test inference"
 inference_runs = 50
 
-print_debug_each_step = False
+print_debug_each_step = True
 print_debug_each_iteration = True
 record_after_inference = 30
 
