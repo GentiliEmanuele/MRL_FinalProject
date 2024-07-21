@@ -1,16 +1,13 @@
 import time
 import warnings
-from random import random, randint
 
 import numpy as np
-from tabulate import tabulate
-
-import app.utilities.config_utils as cu
-
+import app.utilities.state_utils as su
 import gymnasium as gym
-from matplotlib import pyplot as plt
 
+from tabulate import tabulate
 from app.tile_coding.my_tiles import tiles, IHT
+from app.utilities.config_utils import ConfigUtils
 
 if True:
     warnings.filterwarnings("ignore", category=UserWarning, message=".*env.configure.*")
@@ -18,7 +15,9 @@ if True:
     warnings.filterwarnings("ignore", category=UserWarning, message=".*env.action_type to get variables from other "
                                                                     "wrappers is deprecated.*")
 
-    config = cu.get_current_config()
+    cu = ConfigUtils()
+    config, filename_suffix, maxSize, numTilings, alpha, epsilon, gamma, _, num_Episodes = cu.get_current_config()
+    # config, _, maxSize, numTilings, _, _, _, _, _ = cu.get_current_config()
     config["observation"]["absolute"] = True
     config["observation"]["normalize"] = False
     config["observation"]["features_range"] = {
@@ -30,13 +29,12 @@ if True:
     features = cu.get_features()
     env = gym.make('highway-v0', render_mode='rgb_array')
     env.configure(config)
-    state, info = env.reset(seed=42)
+    state, info = env.reset(seed=cu.get_seed())
 
-    maxSize = cu.get_max_size()
+    state = su.transform_state(state)
+
     iht = IHT(maxSize)
-    numTilings = cu.get_num_tilings()
     available_action = env.action_type.get_available_actions()
-
 
 old_tiles_list = None
 done = truncated = False
@@ -46,7 +44,7 @@ while not (done or truncated):
     print("\n\n")
     print(tabulate(state, headers=features, tablefmt="grid"))
 
-    tiles_list = tiles(iht, numTilings, state.flatten().tolist())
+    tiles_list = tiles(iht, numTilings, state)
     print(f"Active tiles:{tiles_list}")
 
     if old_tiles_list is not None:
@@ -64,11 +62,10 @@ while not (done or truncated):
     action = env.action_type.actions_indexes["FASTER"]
     state, reward, done, truncated, info = env.step(action)
 
-    old_state = state
+    state = su.transform_state(state)
+
     agent_x = state[0][0]
-    for i in range(len(state)):
-        state[i][0] -= agent_x
-    state = old_state
+    state[:, 0] -= agent_x
 
     # Wait for user input to progress
     time.sleep(2)
