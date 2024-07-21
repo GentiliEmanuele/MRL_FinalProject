@@ -1,5 +1,6 @@
 import time
 import warnings
+from random import random, randint
 
 import numpy as np
 from tabulate import tabulate
@@ -18,36 +19,59 @@ if True:
                                                                     "wrappers is deprecated.*")
 
     config = cu.get_current_config()
+    config["observation"]["absolute"] = True
+    config["observation"]["normalize"] = False
+    config["observation"]["features_range"] = {
+            "x": [-100, 400],
+            "y": [-100, 400],
+            "vx": [-20, 40],
+            "vy": [-20, 40]
+        }
     features = cu.get_features()
     env = gym.make('highway-v0', render_mode='rgb_array')
     env.configure(config)
-    state, info = env.reset()
+    state, info = env.reset(seed=42)
 
     maxSize = cu.get_max_size()
     iht = IHT(maxSize)
     numTilings = cu.get_num_tilings()
+    available_action = env.action_type.get_available_actions()
+
 
 old_tiles_list = None
-for _ in range(3):
+done = truncated = False
+while not (done or truncated):
     # Print state and tiles
     env.render()
+    print("\n\n")
     print(tabulate(state, headers=features, tablefmt="grid"))
 
     tiles_list = tiles(iht, numTilings, state.flatten().tolist())
-    np.sort(tiles_list)
-    print(tiles_list)
+    print(f"Active tiles:{tiles_list}")
 
     if old_tiles_list is not None:
-        difference_array = old_tiles_list != tiles_list
-        difference_sum = np.sum(difference_array)
-        print("Difference tiles: {}".format(difference_sum))
+        difference_sum = np.setdiff1d(tiles_list, old_tiles_list)
+        total_tiles = len(tiles_list)
+        changed_tiles = len(difference_sum)
+        print("Difference tiles: {}/{} ≈ {}%".format(
+            changed_tiles,
+            total_tiles,
+            round(changed_tiles / total_tiles * 100, 1)))
 
     # Choose and take action
-    action = env.action_type.actions_indexes["IDLE"]
+    # action_index = randint(0, 4)
+    # action = available_action[action_index]
+    action = env.action_type.actions_indexes["FASTER"]
     state, reward, done, truncated, info = env.step(action)
 
+    old_state = state
+    agent_x = state[0][0]
+    for i in range(len(state)):
+        state[i][0] -= agent_x
+    state = old_state
+
     # Wait for user input to progress
-    input()
+    time.sleep(2)
 
     old_tiles_list = tiles_list
 
