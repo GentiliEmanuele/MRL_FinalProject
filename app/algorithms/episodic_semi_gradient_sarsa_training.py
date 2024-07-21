@@ -9,6 +9,7 @@ from app.utilities.video_utils import record_videos
 import warnings
 
 import app.utilities.serialization_utils as su
+import app.utilities.state_utils as stu
 
 from app.utilities.weights_handler import WeightsHandler
 
@@ -25,8 +26,8 @@ config, filename_suffix, maxSize, numTilings, alpha, epsilon, gamma, _, num_Epis
 iht = IHT(maxSize)
 space_action_len = len(env.action_type.actions_indexes)
 
-env.configure(config)
-state, info = env.reset(seed=cu.get_seed())
+stu.custom_configure(env, config)
+state, info, _ = stu.custom_reset(env, cu.get_seed())
 np.random.seed(cu.get_seed())
 random.seed(cu.get_seed())
 
@@ -40,65 +41,67 @@ avg_return = 0
 seed_episodes = 0
 seed = cu.get_seed()
 for episode in range(num_Episodes):
-    print(f"#episodes {episode}, avg_reward {avg_return}, seed {seed}")
+    print("\nEpisode {}, avg_reward {:.3f}, seed {}, IHT usage: {}/{} ≈ {}%".format(
+        episode, avg_return, seed, iht.count(), iht.size, round(iht.count()/iht.size*100, 2)))
     done = False
     truncated = False
     # Choose A and state S
     action = env.action_type.actions_indexes["IDLE"]
-    state, info = env.reset(seed=seed)
-    if episode == num_Episodes - 20:
+    state, info, _ = stu.custom_reset(env, cu.get_seed())
+    if episode == num_Episodes - 10:
         env = record_videos(env)
     # Debugging variables
     num_steps = 0
     expected_return = 0
     while not done and not truncated:
         # tiles_list of initial state
-        tiles_list = tiles(iht, numTilings, state.flatten().tolist())
+        tiles_list = tiles(iht, numTilings, state)
         # Take action A, observe R, S'
-        state_p, reward, done, truncated, info = env.step(action)
+        state_p, reward, done, truncated, info, _ = stu.custom_step(env, action)
         expected_return += reward
         if done or truncated:
-            print("Episode finished after {} timesteps, crashed? {}".format(num_steps, done))
-            print("Expected return {}".format(expected_return))
+            print("Finished after {} steps, expected return {:.3f}, crashed? {}".format(
+                num_steps, expected_return, done))
         if done:
             for tile in tiles_list:
                 weights[tile, action] = weights[tile, action] + alpha * (reward - estimate(tiles_list, action, weights))
         else:
-            tiles_list_p = tiles(iht, numTilings, state_p.flatten().tolist())
+            tiles_list_p = tiles(iht, numTilings, state_p)
             # Choose A' as a function of q(s, ., w) (e.g e-greedy)
             action_p = cu.get_e_greedy_action(epsilon, tiles_list_p, weights, random, env)
             for tile in tiles_list:
-                weights[tile, action] = weights[tile, action] + alpha*(reward + gamma * estimate(tiles_list_p, action_p, weights) - estimate(tiles_list, action, weights))
+                weights[tile, action] = weights[tile, action] + alpha * (
+                        reward + gamma * estimate(tiles_list_p, action_p, weights) - estimate(tiles_list, action,
+                                                                                              weights))
             state = state_p
             action = action_p
             num_steps += 1
     seed_episodes += 1
-    avg_return += (expected_return - avg_return) * 0.2
+    avg_return += (expected_return - avg_return) * 0.125
     if True or avg_return > -1:
         seed_episodes = 0
         # avg_return = 0
         seed = seed + 1
         # print(f"change seed {seed}")
 
-print(f"IHT usage: {iht.count()}/{iht.size}")
+
 weights_handler.save_weights(weights, f"weights/episodic_semi_gradient_sarsa_weights{filename_suffix}")
 su.serilizeIHT(iht, f"ihts/episodic_semi_gradient_sarsa_iht{filename_suffix}.pkl")
 env.close()
 
-## ------------------------- INFERENCE -------------------------------
+# ------------------------- INFERENCE -------------------------------
 if True:
     env = gym.make('highway-v0', render_mode='rgb_array')
 
     # Config the env
     config, _, _, _ = cu.get_inference_config()
-    env.configure(config)
+    stu.custom_configure(env, config)
 
     # Reset seed
     np.random.seed(cu.get_seed())
     random.seed(cu.get_seed())
 
     print("Algorithm chosen: Episodic semi-gradient Sarsa")
-    filename = "algorithms/weights/episodic_semi_gradient_sarsa_weights.npy"
     inference_name = "Episodic Semi Gradient SARSA"
 
     inference_suffix = "Test inference"
@@ -116,7 +119,7 @@ if True:
     round_metrics = 3
 
     for i in range(inference_runs):
-        state, info = env.reset(seed=(cu.get_seed()+i))
+        state, info, _ = stu.custom_reset(env, cu.get_seed() + i)
 
         done = False
         truncated = False
@@ -130,18 +133,18 @@ if True:
 
         while not done and not truncated:
             # Get tilings for current state
-            tiles_list = tiles(iht, numTilings, state.flatten().tolist())
+            tiles_list = tiles(iht, numTilings, state)
 
             # Choose action
             action = cu.get_e_greedy_action(-1, tiles_list, weights, random, env)
 
             # Simulate
-            state, reward, done, truncated, info = env.step(action)
+            state, reward, done, truncated, info, _ = stu.custom_step(env, action)
 
             # Update
             num_steps += 1
-            avg_speed += (1/num_steps)*(state[0][2] - avg_speed)
-            avg_reward += (1/num_steps) * (reward - avg_reward)
+            avg_speed += (1 / num_steps) * (state[1] - avg_speed)
+            avg_reward += (1 / num_steps) * (reward - avg_reward)
             total_reward += reward
 
             if print_debug_each_step:
@@ -156,8 +159,9 @@ if True:
 
         if print_debug_each_iteration:
             status = cu.get_status_message(done, truncated)
-            print("Inference {:03} -> num_steps:{:03}\tav_speed:{:.3f}\tavg_reward:{:.3f}\ttotal_reward:{:.3f}\tstatus:{}"
-                  .format(i, num_steps, avg_speed, avg_reward, total_reward, status))
+            print(
+                "Inference {:03} -> num_steps:{:03}\tav_speed:{:.3f}\tavg_reward:{:.3f}\ttotal_reward:{:.3f}\tstatus:{}"
+                .format(i, num_steps, avg_speed, avg_reward, total_reward, status))
 
     # Print name and info
     print(f"\n\n{inference_name}-{inference_suffix}, maxSize:{maxSize}, numTilings:{numTilings}")
@@ -172,7 +176,7 @@ if True:
     stddev_avg_speed = round(np.std(list_avg_speed), round_metrics)
     t.add_row(["avg_speed", mean_avg_speed, stddev_avg_speed])
     mean_avg_reward = round(np.mean(list_avg_reward), round_metrics)
-    stddev_avg_reward = round(np.std(list_avg_reward),round_metrics)
+    stddev_avg_reward = round(np.std(list_avg_reward), round_metrics)
     t.add_row(["avg_reward", mean_avg_reward, stddev_avg_reward])
     mean_total_reward = round(np.mean(list_total_reward), round_metrics)
     stddev_total_reward = round(np.std(list_total_reward), round_metrics)

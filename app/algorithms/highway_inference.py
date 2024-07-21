@@ -7,6 +7,7 @@ import numpy as np
 from stable_baselines3 import DQN
 
 import app.utilities.serialization_utils as su
+import app.utilities.state_utils as stu
 
 from app.tile_coding.my_tiles import IHT, tiles
 from app.utilities.config_utils import ConfigUtils
@@ -25,14 +26,16 @@ if True:
     # Create a ConfigParser object
     config_parser = configparser.ConfigParser()
     # Read the configuration file
-    config_parser.read('config.ini')
+    config_parser.read('../config.ini')
 
     env = gym.make('highway-v0', render_mode='rgb_array')
 
     # Config the env
     cu = ConfigUtils()
+    # TODO: fix using get_inference_config
     config, filename_suffix, maxSize, numTilings = cu.get_inference_config()
-    env.configure(config)
+    #config, filename_suffix, maxSize, numTilings, alpha, epsilon, gamma, lambda_, num_Episodes = cu.get_current_config()
+    stu.custom_configure(env, config)
 
     # Reset seed
     np.random.seed(cu.get_seed())
@@ -47,23 +50,24 @@ if True:
     algorithm_type = int(config_parser['inference_algorithm']['type'])
     if algorithm_type == 1:
         print("Algorithm chosen: Episodic semi-gradient Sarsa")
-        weights_filename = f"algorithms/weights/episodic_semi_gradient_sarsa_weights{filename_suffix}.npy"
-        iht_filename = f"algorithms/ihts/episodic_semi_gradient_sarsa_iht{filename_suffix}.pkl"
+        weights_filename = f"weights/episodic_semi_gradient_sarsa_weights{filename_suffix}.npy"
+        iht_filename = f"ihts/episodic_semi_gradient_sarsa_iht{filename_suffix}.pkl"
         inference_name = "Episodic Semi Gradient SARSA"
     elif algorithm_type == 2:
         print("Algorithm chosen: True online TD(lambda)")
-        weights_filename = f"algorithms/weights/true_online_td_lambda_weights{filename_suffix}.npy"
-        iht_filename = f"algorithms/ihts/true_online_td_lambda_iht{filename_suffix}.pkl"
+        weights_filename = f"weights/true_online_td_lambda_weights{filename_suffix}.npy"
+        iht_filename = f"ihts/true_online_td_lambda_iht{filename_suffix}.pkl"
         inference_name = "True online TD Lambda"
     elif algorithm_type == 3:
         print("Algorithm chosen: Sarsa(lambda)")
-        weights_filename = f"algorithms/weights/sarsa_lambda_weights{filename_suffix}.npy"
-        iht_filename = f"algorithms/ihts/sarsa_lambda_iht{filename_suffix}.pkl"
+        weights_filename = f"weights/sarsa_lambda_weights{filename_suffix}.npy"
+        iht_filename = f"ihts/sarsa_lambda_iht{filename_suffix}.pkl"
         inference_name = "Sarsa Lambda"
     elif algorithm_type == 4:
         print("Algorithm chosen: DQN")
         special_type = "DQN"
-        weights_filename = "algorithms/highway_dqn/model"
+        weights_filename = "highway_dqn/model"
+        iht_filename = ""
         inference_name = "DQN"
     else:
         print("Invalid configuration.\nAlgorithm chosen: Episodic semi-gradient Sarsa")
@@ -96,7 +100,7 @@ list_total_reward = np.zeros(inference_runs)
 round_metrics = 3
 
 for i in range(inference_runs):
-    state, info = env.reset(seed=(cu.get_seed()+1000+i))
+    state, info, _ = stu.custom_reset(env, cu.get_seed() + 1000 + i)
 
     done = False
     truncated = False
@@ -110,7 +114,7 @@ for i in range(inference_runs):
 
     while not done and not truncated:
         # Get tilings for current state
-        tiles_list = tiles(iht, numTilings, state.flatten().tolist())
+        tiles_list = tiles(iht, numTilings, state)
 
         # Choose action
         if special_type == "DQN":
@@ -119,18 +123,18 @@ for i in range(inference_runs):
             action = cu.get_e_greedy_action(-1, tiles_list, weights, random, env)
 
         # Simulate
-        state, reward, done, truncated, info = env.step(action)
+        state, reward, done, truncated, info, nt_state = stu.custom_step(env, action)
 
         # Update
         num_steps += 1
-        avg_speed += (1/num_steps)*(state[0][2] - avg_speed)
+        avg_speed += (1/num_steps)*(nt_state[0][2] - avg_speed)
         avg_reward += (1/num_steps)*(reward - avg_reward)
         total_reward += reward
 
         if print_debug_each_step:
             status = cu.get_status_message(done, truncated)
             print("num_steps:{:03}\tspeed:{:.3f}\treward:{:.3f}\ttotal_reward:{:.3f}\tstatus:{}"
-                  .format(num_steps, state[0][2], reward, total_reward, status))
+                  .format(num_steps, nt_state[0][2], reward, total_reward, status))
 
     list_num_steps[i] = num_steps
     list_avg_speed[i] = avg_speed
@@ -162,7 +166,21 @@ stddev_total_reward = round(np.std(list_total_reward), round_metrics)
 t.add_row(["total_reward", mean_total_reward, stddev_total_reward])
 
 print(t)
+# -------------------------------- NEW -----------------------------------------------------
+# ID = 2
+# Episodic Semi Gradient SARSA-Test inference, maxSize:12288, numTilings:96
+# Measures mean and standard deviation:
+# +--------------+-------+--------+
+# |   Measure    |  Mean | StdDev |
+# +--------------+-------+--------+
+# |  num_steps   | 17.24 | 17.686 |
+# |  avg_speed   | 0.871 | 0.068  |
+# |  avg_reward  | 0.449 | 0.215  |
+# | total_reward | 6.555 |  4.92  |
+# +--------------+-------+--------+
 
+
+# -------------------------------- OLD ---------------------------------------------------
 # ID = 1
 # Episodic Semi Gradient SARSA-Test inference, maxSize:12288, numTilings:24
 # 1000 episodes, fixed seed
