@@ -1,15 +1,12 @@
-import time
 import warnings
 
-import numpy as np
 from tabulate import tabulate
-
-import app.utilities.config_utils as cu
-
-import gymnasium as gym
-from matplotlib import pyplot as plt
-
 from app.tile_coding.my_tiles import tiles, IHT
+
+import numpy as np
+import app.utilities.config_utils as cu
+import gymnasium as gym
+
 
 if True:
     warnings.filterwarnings("ignore", category=UserWarning, message=".*env.configure.*")
@@ -17,15 +14,15 @@ if True:
     warnings.filterwarnings("ignore", category=UserWarning, message=".*env.action_type to get variables from other "
                                                                     "wrappers is deprecated.*")
 
-    config = cu.get_current_config()
-    features = cu.get_features()
     env = gym.make('highway-v0', render_mode='rgb_array')
+
+    cu = cu.ConfigUtils()
+    config, filename_suffix, maxSize, numTilings, alpha, epsilon, gamma, lambda_, num_Episodes = cu.get_current_config()
+    iht = IHT(maxSize)
+    features = cu.get_features()
+
     env.configure(config)
     state, info = env.reset()
-
-    maxSize = cu.get_max_size()
-    iht = IHT(maxSize)
-    numTilings = cu.get_num_tilings()
 
 old_tiles_list = None
 for _ in range(3):
