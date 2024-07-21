@@ -6,7 +6,6 @@ import warnings
 import app.utilities.config_utils as cu
 import app.utilities.serialization_utils as su
 
-from matplotlib import pyplot as plt
 from app.utilities.video_utils import record_videos
 from app.utilities.weights_handler import WeightsHandler
 from app.tile_coding.my_tiles import IHT, tiles, estimate
@@ -17,31 +16,20 @@ warnings.filterwarnings("ignore", category=UserWarning, message=".*Overwriting e
 warnings.filterwarnings("ignore", category=UserWarning, message=".*env.action_type to get variables from other "
                                                                 "wrappers is deprecated.*")
 
-config = cu.get_current_config()
-
 env = gym.make('highway-v0', render_mode='rgb_array')
+
+cu = cu.ConfigUtils()
+config, filename_suffix, maxSize, numTilings, alpha, epsilon, gamma, lambda_, num_Episodes = cu.get_current_config()
+iht = IHT(maxSize)
+space_action_len = len(env.action_type.actions_indexes)
+
 env.configure(config)
 state, info = env.reset(seed=cu.get_seed())
 np.random.seed(cu.get_seed())
 random.seed(cu.get_seed())
 
-# See initial configuration
-plt.imshow(env.render())
-plt.show()
-
 done = False
 truncated = False
-
-maxSize = cu.get_max_size()
-iht = IHT(maxSize)
-space_action_len = len(env.action_type.actions_indexes)
-numTilings = cu.get_num_tilings() # according to Sutton example we keep the ratio between maxSize and numTilings as 1 / 156
-alpha = cu.get_alpha() # step size
-epsilon_0 = cu.get_epsilon0()
-epsilon = epsilon_0
-gamma = cu.get_gamma()
-lambda_ = cu.get_lambda()
-num_Episodes = 1000
 
 weights_handler = WeightsHandler(maxSize, space_action_len)
 weights = weights_handler.generate_weights()
@@ -117,6 +105,6 @@ for episode in range(num_Episodes):
     print(f"Episode: {episode}, Num steps: {num_steps}")
 
 print(f"IHT usage: {iht.count()}/{iht.size}")
-weights_handler.save_weights(weights, "weights/true_online_td_lambda_weights")
-su.serilizeIHT(iht, "ihts/true_online_td_lambda_iht.pkl")
+weights_handler.save_weights(weights, f"weights/true_online_td_lambda_weights{filename_suffix}")
+su.serilizeIHT(iht, f"ihts/true_online_td_lambda_iht{filename_suffix}.pkl")
 env.close()
