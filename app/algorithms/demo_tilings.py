@@ -9,29 +9,36 @@ from tabulate import tabulate
 from app.tile_coding.my_tiles import tiles, IHT
 from app.utilities.config_utils import ConfigUtils
 
+use_su = True
+
 if True:
-    warnings.filterwarnings("ignore", category=UserWarning, message=".*env.configure.*")
+    # warnings.filterwarnings("ignore", category=UserWarning, message=".*env.configure.*")
     warnings.filterwarnings("ignore", category=UserWarning, message=".*Overwriting existing videos.*")
     warnings.filterwarnings("ignore", category=UserWarning, message=".*env.action_type to get variables from other "
                                                                     "wrappers is deprecated.*")
 
     cu = ConfigUtils()
     config, filename_suffix, maxSize, numTilings, alpha, epsilon, gamma, _, num_Episodes = cu.get_current_config()
-    # config, _, maxSize, numTilings, _, _, _, _, _ = cu.get_current_config()
+
     config["observation"]["absolute"] = True
-    config["observation"]["normalize"] = False
-    config["observation"]["features_range"] = {
-            "x": [-100, 400],
-            "y": [-100, 400],
-            "vx": [-20, 40],
-            "vy": [-20, 40]
-        }
+    config["observation"]["normalize"] = True
+    # config["observation"]["features_range"] = {
+    #         "dx": [-10, 90],
+    #         "y": [-8, 8],
+    #         "vx": [0, 30],
+    #         "vy": [-5, 5]
+    #     }
+
     features = cu.get_features()
     env = gym.make('highway-v0', render_mode='rgb_array')
-    env.configure(config)
-    state, info = env.reset(seed=cu.get_seed())
 
-    state = su.transform_state(state)
+    if use_su:
+        su.custom_configure(env, config)
+        state, info, nt_state = su.custom_reset(env, cu.get_seed())
+    else:
+        env.configure(config)
+        state, info = env.reset(seed=cu.get_seed())
+        nt_state = None
 
     iht = IHT(maxSize)
     available_action = env.action_type.get_available_actions()
@@ -42,9 +49,14 @@ while not (done or truncated):
     # Print state and tiles
     env.render()
     print("\n\n")
-    print(tabulate(state, headers=features, tablefmt="grid"))
 
-    tiles_list = tiles(iht, numTilings, state)
+    if use_su:
+        print(tabulate(nt_state, headers=features, tablefmt="grid"))
+        tiles_list = tiles(iht, numTilings, state)
+    else:
+        print(tabulate(state, headers=features, tablefmt="grid"))
+        tiles_list = tiles(iht, numTilings, state.flatten().tolist())
+
     print(f"Active tiles:{tiles_list}")
 
     if old_tiles_list is not None:
@@ -57,37 +69,14 @@ while not (done or truncated):
             round(changed_tiles / total_tiles * 100, 1)))
 
     # Choose and take action
-    # action_index = randint(0, 4)
-    # action = available_action[action_index]
-    action = env.action_type.actions_indexes["FASTER"]
-    state, reward, done, truncated, info = env.step(action)
+    action = available_action[0]
 
-    state = su.transform_state(state)
-
-    agent_x = state[0][0]
-    state[:, 0] -= agent_x
+    if use_su:
+        state, reward, done, truncated, info, nt_state = su.custom_step(env, action)
+    else:
+        state, reward, done, truncated, info = env.step(action)
 
     # Wait for user input to progress
     time.sleep(2)
 
     old_tiles_list = tiles_list
-
-# plt.imshow(env.render())
-# plt.show()
-
-# TRAINING
-# s = [0.5, 0.6, 0.7]
-# 1 2 3 4
-# 5 10 -1 0
-# estimate(s) = 5*1 + 10*2 + -1*3 + 0*4
-
-# s = [0.8, 0.9, 1.0]
-# 1 2 3 5
-# 5 10 -1 30
-# estimate(s) = 5*1 + 10*2 + -1*3 + 30*5
-
-# INFERENCE
-# s = [31.5, 456.7, 2000.4]
-# 1 2 3 4
-# 5 10 -1 0
-# estimate(s) = 5*1 + 10*2 + -1*3 + 0*4
