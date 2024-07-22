@@ -252,6 +252,12 @@ class ConfigUtils:
         config["collision_reward"] = -1
         return config, filename_suffix, maxSize, numTilings
 
+    def get_inference_config4(self):
+        config, filename_suffix, maxSize, numTilings, _, _, _, _, _ = self.get_current_config()
+        config["normalize_reward"] = False
+        config["collision_reward"] = -1
+        return config, filename_suffix, maxSize, numTilings
+
     def get_seed(self):
         return 44
 
