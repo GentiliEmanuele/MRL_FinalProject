@@ -3,8 +3,8 @@ import random
 import gymnasium as gym
 import numpy as np
 import warnings
-import app.utilities.config_utils as cu
 import app.utilities.serialization_utils as su
+from app.utilities.config_utils import ConfigUtils
 
 from app.utilities.video_utils import record_videos
 from app.utilities.weights_handler import WeightsHandler
@@ -18,8 +18,9 @@ warnings.filterwarnings("ignore", category=UserWarning, message=".*env.action_ty
 
 env = gym.make('highway-v0', render_mode='rgb_array')
 
-cu = cu.ConfigUtils()
+cu = ConfigUtils()
 config, filename_suffix, maxSize, numTilings, alpha, epsilon, gamma, lambda_, num_Episodes = cu.get_current_config()
+print(f"Using configuration: {filename_suffix}")
 iht = IHT(maxSize)
 space_action_len = len(env.action_type.actions_indexes)
 
@@ -50,23 +51,10 @@ for episode in range(num_Episodes):
 
     while not done and not truncated:
         # Choose A
-        if random.random() < epsilon:
-            action = random.randint(0, space_action_len - 1)
-        else:
-            best_action = 0
-            best_estimate = estimate(tiles_list, 0, weights)
-            for a in range(1, space_action_len):
-                actual_estimate = estimate(tiles_list, a, weights)
-                if actual_estimate > best_estimate:
-                    best_estimate = actual_estimate
-                    best_action = a
-            action = best_action
+        action = cu.get_e_greedy_action(epsilon, tiles_list, weights, random, env)
 
         # Take action A, observe R, S'
         state_p, reward, done, truncated, info = env.step(action)
-
-        if done:
-            reward = -50
 
         # x'
         tiles_list_p = tiles(iht, numTilings, state_p.flatten().tolist())
@@ -108,3 +96,4 @@ print(f"IHT usage: {iht.count()}/{iht.size}")
 weights_handler.save_weights(weights, f"weights/true_online_td_lambda_weights{filename_suffix}")
 su.serilizeIHT(iht, f"ihts/true_online_td_lambda_iht{filename_suffix}.pkl")
 env.close()
+

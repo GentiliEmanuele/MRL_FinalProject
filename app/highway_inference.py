@@ -32,6 +32,7 @@ if True:
     # Config the env
     cu = ConfigUtils()
     config, filename_suffix, maxSize, numTilings = cu.get_inference_config()
+    print(f"Using configuration: {filename_suffix}")
     env.configure(config)
 
     # Reset seed
