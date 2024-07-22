@@ -92,7 +92,7 @@ inference_runs = 50
 
 print_debug_each_step = False
 print_debug_each_iteration = True
-record_after_inference = 30
+record_after_inference = inference_runs - 5
 
 list_num_steps = np.zeros(inference_runs)
 list_avg_speed = np.zeros(inference_runs)
@@ -128,15 +128,16 @@ for i in range(inference_runs):
         state, reward, done, truncated, info = env.step(action)
 
         # Update
+        real_speed = state[0][2]*80
         num_steps += 1
-        avg_speed += (1/num_steps)*(state[0][2] - avg_speed)
+        avg_speed += (1/num_steps)*(real_speed - avg_speed)
         avg_reward += (1/num_steps)*(reward - avg_reward)
         total_reward += reward
 
         if print_debug_each_step:
             status = cu.get_status_message(done, truncated)
             print("num_steps:{:03}\tspeed:{:.3f}\treward:{:.3f}\ttotal_reward:{:.3f}\tstatus:{}"
-                  .format(num_steps, state[0][2], reward, total_reward, status))
+                  .format(num_steps, real_speed, reward, total_reward, status))
 
     list_num_steps[i] = num_steps
     list_avg_speed[i] = avg_speed
@@ -168,6 +169,44 @@ stddev_total_reward = round(np.std(list_total_reward), round_metrics)
 t.add_row(["total_reward", mean_total_reward, stddev_total_reward])
 
 print(t)
+
+# ------------------------------------------ ID = 3 --------------------------------
+# True online TD Lambda-Test inference, maxSize:12288, numTilings:96
+# Measures mean and standard deviation:
+# +--------------+-------+--------+
+# |   Measure    |  Mean | StdDev |
+# +--------------+-------+--------+
+# |  num_steps   | 53.76 | 27.539 |
+# |  avg_speed   | 0.274 | 0.028  |
+# |  avg_reward  | 0.136 | 0.193  |
+# | total_reward |  7.02 | 4.507  |
+# +--------------+-------+--------+
+
+
+# Sarsa Lambda-Test inference, maxSize:12288, numTilings:96
+# Measures mean and standard deviation:
+# +--------------+-------+--------+
+# |   Measure    |  Mean | StdDev |
+# +--------------+-------+--------+
+# |  num_steps   | 15.48 | 11.122 |
+# |  avg_speed   |  0.32 | 0.023  |
+# |  avg_reward  |  0.33 | 0.211  |
+# | total_reward | 5.008 |  3.87  |
+# +--------------+-------+--------+
+
+
+# True online differential TD Lambda-Test inference, maxSize:12288, numTilings:96
+# Measures mean and standard deviation:
+# +--------------+-------+--------+
+# |   Measure    |  Mean | StdDev |
+# +--------------+-------+--------+
+# |  num_steps   | 38.48 | 27.966 |
+# |  avg_speed   | 0.287 | 0.035  |
+# |  avg_reward  | 0.208 |  0.22  |
+# | total_reward | 4.846 | 4.104  |
+# +--------------+-------+--------+
+
+# ------------------------------------------ OLD -----------------------------------
 
 # ID = 1
 # Episodic Semi Gradient SARSA-Test inference, maxSize:12288, numTilings:24
