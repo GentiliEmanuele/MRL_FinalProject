@@ -1,5 +1,5 @@
 ------------------------------------------ ID = 3 --------------------------------
-True online TD Lambda-Test inference, maxSize:12288, numTilings:96
+True online TD Lambda-Test inference, IHT usage:7310/12288, numTilings:96
 Measures mean and standard deviation:
 +--------------+-------+--------+
 |   Measure    |  Mean | StdDev |
@@ -10,7 +10,7 @@ Measures mean and standard deviation:
 | total_reward |  7.02 | 4.507  |
 +--------------+-------+--------+
 
-Sarsa Lambda-Test inference, maxSize:12288, numTilings:96
+Sarsa Lambda-Test inference, IHT usage:6852/12288, numTilings:96
 Measures mean and standard deviation:
 +--------------+--------+--------+
 |   Measure    |  Mean  | StdDev |
@@ -21,7 +21,7 @@ Measures mean and standard deviation:
 | total_reward | 5.008  |  3.87  |
 +--------------+--------+--------+
 
-True online differential TD Lambda-Test inference, maxSize:12288, numTilings:96
+True online differential TD Lambda-Test inference, IHT usage:7293/12288, numTilings:96
 Measures mean and standard deviation:
 +--------------+--------+--------+
 |   Measure    |  Mean  | StdDev |

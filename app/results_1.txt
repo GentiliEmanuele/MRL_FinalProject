@@ -1,5 +1,5 @@
 ----------------------------------------- ID = 1 ---------------------------------
-Episodic Semi Gradient SARSA-Test inference, maxSize:12288, numTilings:96
+Episodic Semi Gradient SARSA-Test inference, IHT usage:6475/12288, numTilings:96
 Measures mean and standard deviation:
 +--------------+--------+--------+
 |   Measure    |  Mean  | StdDev |

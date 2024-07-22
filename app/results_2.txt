@@ -1,1 +1,11 @@
 ------------------------------------------ ID = 2 --------------------------------
+Episodic Semi Gradient SARSA-Test inference, IHT usage:6516/12288, numTilings:96
+Measures mean and standard deviation:
++--------------+--------+--------+
+|   Measure    |  Mean  | StdDev |
++--------------+--------+--------+
+|  num_steps   | 71.86  |  0.98  |
+|  avg_speed   | 20.469 | 0.424  |
+|  avg_reward  | 0.066  | 0.032  |
+| total_reward | 4.771  | 2.331  |
++--------------+--------+--------+
