@@ -80,7 +80,7 @@ for episode in range(num_Episodes):
 
         else:
             # choose A'
-            action_p = cu.get_e_greedy_action(epsilon, space_action_len, tiles_list_p, weights, random)
+            action_p = cu.get_e_greedy_action(epsilon, tiles_list_p, weights, random, env)
 
             # loop on new tiles
             for tile_p in tiles_list_p:
