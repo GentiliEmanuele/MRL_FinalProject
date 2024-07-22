@@ -29,7 +29,7 @@ class ConfigUtils:
         config_parser = configparser.ConfigParser()
         # Read the configuration file
         try:
-            config_parser.read('config.ini')
+            config_parser.read('../config.ini')
         except:
             raise Exception("Error in reading config.ini file: check that:\n"
                             "1) You didn't move config_utils.py in a different path from app/utilities\n"
@@ -86,7 +86,7 @@ class ConfigUtils:
         epsilon = epsilon_0
         gamma = 0.9
         lambda_ = 0.9
-        num_Episodes = 1000
+        num_Episodes = 1
 
         return config, filename_suffix, maxSize, numTilings, alpha, epsilon, gamma, lambda_, num_Episodes
 

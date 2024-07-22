@@ -1,4 +1,6 @@
 import random
+import datetime
+
 import gymnasium as gym
 import numpy as np
 from prettytable import PrettyTable
@@ -30,19 +32,21 @@ state, info = env.reset(seed=cu.get_seed())
 np.random.seed(cu.get_seed())
 random.seed(cu.get_seed())
 
-done = False
-truncated = False
-
 weights_handler = WeightsHandler(maxSize, space_action_len)
 weights = weights_handler.generate_weights()
 
 avg_return = 0
-seed_episodes = 0
+avg_num_steps = 0
 seed = cu.get_seed()
+
+print(f"ID: {filename_suffix}")
+begin = datetime.datetime.now()
 for episode in range(num_Episodes):
-    print(f"#episodes {episode}, avg_reward {avg_return}, seed {seed}")
-    done = False
-    truncated = False
+    run_time = round((datetime.datetime.now() - begin).total_seconds() / 60, 1)
+    print("\nEpisode {}, avg_reward {:.3f}, avg_num_steps {:.3f}, seed {}, IHT usage: {}/{} ≈ {}%, run time: {} min".format(
+        episode, avg_return, avg_num_steps, seed, iht.count(), iht.size, round(iht.count() / iht.size * 100, 2),
+        run_time))
+    done = truncated = False
     # Choose A and state S
     action = env.action_type.actions_indexes["IDLE"]
     state, info = env.reset(seed=seed)
@@ -58,8 +62,8 @@ for episode in range(num_Episodes):
         state_p, reward, done, truncated, info = env.step(action)
         expected_return += reward
         if done or truncated:
-            print("Episode finished after {} timesteps, crashed? {}".format(num_steps, done))
-            print("Expected return {}".format(expected_return))
+            print("Episode finished after {} steps, crashed? {}, expected return {}".format(
+                num_steps, done, expected_return))
         if done:
             for tile in tiles_list:
                 weights[tile, action] = weights[tile, action] + alpha * (reward - estimate(tiles_list, action, weights))
@@ -72,15 +76,10 @@ for episode in range(num_Episodes):
             state = state_p
             action = action_p
             num_steps += 1
-    seed_episodes += 1
-    avg_return += (expected_return - avg_return) * 0.2
-    if True or avg_return > -1:
-        seed_episodes = 0
-        # avg_return = 0
-        seed = seed + 1
-        # print(f"change seed {seed}")
+    seed += 1
+    avg_num_steps += (num_steps - avg_num_steps) * 0.1
+    avg_return += (expected_return - avg_return) * 0.1
 
-print(f"IHT usage: {iht.count()}/{iht.size}")
 weights_handler.save_weights(weights, f"weights/episodic_semi_gradient_sarsa_weights{filename_suffix}")
 su.serilizeIHT(iht, f"ihts/episodic_semi_gradient_sarsa_iht{filename_suffix}.pkl")
 env.close()
