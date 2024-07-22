@@ -25,7 +25,7 @@ env = gym.make('highway-v0', render_mode='rgb_array')
 cu = ConfigUtils()
 config, filename_suffix, maxSize, numTilings, alpha, epsilon, gamma, _, num_Episodes = cu.get_current_config()
 print(f"Using configuration: {filename_suffix}")
-if filename_suffix == "3" or filename_suffix == "4":
+if filename_suffix == "3" or filename_suffix == "4" or filename_suffix == "7" or filename_suffix == "8":
     raise Exception("Useless try")
 iht = IHT(maxSize)
 space_action_len = len(env.action_type.actions_indexes)
