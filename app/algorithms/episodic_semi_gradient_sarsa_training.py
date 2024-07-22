@@ -61,18 +61,20 @@ for episode in range(num_Episodes):
         # Take action A, observe R, S'
         state_p, reward, done, truncated, info = env.step(action)
         expected_return += reward
+        estimate_value = estimate(tiles_list, action, weights)
         if done or truncated:
             print("Episode finished after {} steps, crashed? {}, expected return {}".format(
                 num_steps, done, expected_return))
         if done:
             for tile in tiles_list:
-                weights[tile, action] = weights[tile, action] + alpha * (reward - estimate(tiles_list, action, weights))
+                weights[tile, action] = weights[tile, action] + alpha * (reward - estimate_value)
         else:
             tiles_list_p = tiles(iht, numTilings, state_p.flatten().tolist())
             # Choose A' as a function of q(s, ., w) (e.g e-greedy)
             action_p = cu.get_e_greedy_action(epsilon, tiles_list_p, weights, random, env)
+            estimate_value_p = estimate(tiles_list_p, action_p, weights)
             for tile in tiles_list:
-                weights[tile, action] = weights[tile, action] + alpha*(reward + gamma * estimate(tiles_list_p, action_p, weights) - estimate(tiles_list, action, weights))
+                weights[tile, action] = weights[tile, action] + alpha*(reward + gamma * estimate_value_p - estimate_value)
             state = state_p
             action = action_p
             num_steps += 1

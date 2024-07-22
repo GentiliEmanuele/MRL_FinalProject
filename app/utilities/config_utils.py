@@ -86,7 +86,7 @@ class ConfigUtils:
         epsilon = epsilon_0
         gamma = 0.9
         lambda_ = 0.9
-        num_Episodes = 1
+        num_Episodes = 1000
 
         return config, filename_suffix, maxSize, numTilings, alpha, epsilon, gamma, lambda_, num_Episodes
 
