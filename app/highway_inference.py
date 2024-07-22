@@ -62,6 +62,11 @@ if True:
         iht_filename = f"algorithms/ihts/sarsa_lambda_iht{filename_suffix}.pkl"
         inference_name = "Sarsa Lambda"
     elif algorithm_type == 4:
+        print("Algorithm chosen: True online differential TD(lambda)")
+        weights_filename = f"algorithms/weights/true_online_td_lambda_differential_weights{filename_suffix}.npy"
+        iht_filename = f"algorithms/ihts/true_online_td_lambda_differential_iht{filename_suffix}.pkl"
+        inference_name = "True online differential TD Lambda"
+    elif algorithm_type == 5:
         print("Algorithm chosen: DQN")
         special_type = "DQN"
         weights_filename = "algorithms/highway_dqn/model"

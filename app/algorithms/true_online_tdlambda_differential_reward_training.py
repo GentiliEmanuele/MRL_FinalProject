@@ -98,7 +98,7 @@ for episode in range(num_Episodes):
     print(f"Episode: {episode}, Num steps: {num_steps}")
 
 print(f"IHT usage: {iht.count()}/{iht.size}")
-weights_handler.save_weights(weights, f"weights/true_online_td_lambda_weights{filename_suffix}")
-su.serilizeIHT(iht, f"ihts/true_online_td_lambda_iht{filename_suffix}.pkl")
+weights_handler.save_weights(weights, f"weights/true_online_td_lambda_differential_weights{filename_suffix}")
+su.serilizeIHT(iht, f"ihts/true_online_td_lambda_differential_iht{filename_suffix}.pkl")
 env.close()
 
