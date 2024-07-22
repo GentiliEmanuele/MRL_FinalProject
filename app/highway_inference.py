@@ -150,7 +150,7 @@ for i in range(inference_runs):
               .format(i, num_steps, avg_speed, avg_reward, total_reward, status))
 
 # Print name and info
-print(f"\n\n{inference_name}-{inference_suffix}, maxSize:{maxSize}, numTilings:{numTilings}")
+print(f"\n\n{inference_name}-{inference_suffix}, IHT usage:{iht.count()}/{iht.size}, numTilings:{numTilings}")
 
 # Print mean and standard deviation of metrics
 print("Measures mean and standard deviation:")
