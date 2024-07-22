@@ -1,0 +1,33 @@
+# ------------------------------------------ ID = 3 --------------------------------
+# True online TD Lambda-Test inference, maxSize:12288, numTilings:96
+# Measures mean and standard deviation:
+# +--------------+-------+--------+
+# |   Measure    |  Mean | StdDev |
+# +--------------+-------+--------+
+# |  num_steps   | 53.76 | 27.539 |
+# |  avg_speed   | 21.93 | 2.277  |
+# |  avg_reward  | 0.136 | 0.193  |
+# | total_reward |  7.02 | 4.507  |
+# +--------------+-------+--------+
+
+# Sarsa Lambda-Test inference, maxSize:12288, numTilings:96
+# Measures mean and standard deviation:
+# +--------------+--------+--------+
+# |   Measure    |  Mean  | StdDev |
+# +--------------+--------+--------+
+# |  num_steps   | 15.48  | 11.122 |
+# |  avg_speed   | 25.599 | 1.814  |
+# |  avg_reward  |  0.33  | 0.211  |
+# | total_reward | 5.008  |  3.87  |
+# +--------------+--------+--------+
+
+# True online differential TD Lambda-Test inference, maxSize:12288, numTilings:96
+# Measures mean and standard deviation:
+# +--------------+--------+--------+
+# |   Measure    |  Mean  | StdDev |
+# +--------------+--------+--------+
+# |  num_steps   | 38.48  | 27.966 |
+# |  avg_speed   | 22.983 | 2.782  |
+# |  avg_reward  | 0.208  |  0.22  |
+# | total_reward | 4.846  | 4.104  |
+# +--------------+--------+--------+

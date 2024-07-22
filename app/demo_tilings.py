@@ -5,7 +5,7 @@ from random import random, randint
 import numpy as np
 from tabulate import tabulate
 
-import app.utilities.config_utils as cu
+from app.utilities.config_utils import ConfigUtils
 
 import gymnasium as gym
 from matplotlib import pyplot as plt
@@ -18,23 +18,16 @@ if True:
     warnings.filterwarnings("ignore", category=UserWarning, message=".*env.action_type to get variables from other "
                                                                     "wrappers is deprecated.*")
 
-    config = cu.get_current_config()
-    config["observation"]["absolute"] = True
+    cu = ConfigUtils()
+    config, filename_suffix, maxSize, numTilings = cu.get_inference_config()
+    config["observation"]["absolute"] = False
     config["observation"]["normalize"] = False
-    config["observation"]["features_range"] = {
-            "x": [-100, 400],
-            "y": [-100, 400],
-            "vx": [-20, 40],
-            "vy": [-20, 40]
-        }
     features = cu.get_features()
     env = gym.make('highway-v0', render_mode='rgb_array')
     env.configure(config)
     state, info = env.reset(seed=42)
 
-    maxSize = cu.get_max_size()
     iht = IHT(maxSize)
-    numTilings = cu.get_num_tilings()
     available_action = env.action_type.get_available_actions()
 
 
@@ -45,6 +38,9 @@ while not (done or truncated):
     env.render()
     print("\n\n")
     print(tabulate(state, headers=features, tablefmt="grid"))
+
+    real_speed = state[0][2] / 0.0125
+    print(f"real_speed: {real_speed}")
 
     tiles_list = tiles(iht, numTilings, state.flatten().tolist())
     print(f"Active tiles:{tiles_list}")
@@ -63,12 +59,6 @@ while not (done or truncated):
     # action = available_action[action_index]
     action = env.action_type.actions_indexes["FASTER"]
     state, reward, done, truncated, info = env.step(action)
-
-    old_state = state
-    agent_x = state[0][0]
-    for i in range(len(state)):
-        state[i][0] -= agent_x
-    state = old_state
 
     # Wait for user input to progress
     time.sleep(2)
