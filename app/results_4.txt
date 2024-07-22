@@ -1,4 +1,14 @@
 ------------------------------------------ ID = 4 --------------------------------
+True online TD Lambda-Test inference, IHT usage:7653/12288, numTilings:96
+Measures mean and standard deviation:
++--------------+-------+--------+
+|   Measure    |  Mean | StdDev |
++--------------+-------+--------+
+|  num_steps   | 70.04 | 9.704  |
+|  avg_speed   | 20.97 | 0.645  |
+|  avg_reward  | 0.076 | 0.019  |
+| total_reward | 5.403 | 1.553  |
++--------------+-------+--------+
 
 Sarsa Lambda-Test inference, IHT usage:6893/12288, numTilings:96
 Measures mean and standard deviation:
