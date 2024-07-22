@@ -1,0 +1,11 @@
+----------------------------------------- ID = 1 ---------------------------------
+Episodic Semi Gradient SARSA-Test inference, maxSize:12288, numTilings:96
+Measures mean and standard deviation:
++--------------+--------+--------+
+|   Measure    |  Mean  | StdDev |
++--------------+--------+--------+
+|  num_steps   | 17.24  | 11.796 |
+|  avg_speed   | 28.339 | 1.324  |
+|  avg_reward  | 0.784  | 0.167  |
+| total_reward | 13.831 | 9.105  |
++--------------+--------+--------+
