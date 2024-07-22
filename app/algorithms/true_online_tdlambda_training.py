@@ -1,8 +1,10 @@
+import os
 import random
 
 import gymnasium as gym
 import numpy as np
 import warnings
+
 import app.utilities.serialization_utils as su
 from app.utilities.config_utils import ConfigUtils
 
@@ -93,6 +95,9 @@ for episode in range(num_Episodes):
     print(f"Episode: {episode}, Num steps: {num_steps}")
 
 print(f"IHT usage: {iht.count()}/{iht.size}")
+
+os.makedirs("weights", exist_ok=True)
+os.makedirs("ihts", exist_ok=True)
 weights_handler.save_weights(weights, f"weights/true_online_td_lambda_weights{filename_suffix}")
 su.serilizeIHT(iht, f"ihts/true_online_td_lambda_iht{filename_suffix}.pkl")
 env.close()

@@ -1,3 +1,4 @@
+import os
 import random
 import datetime
 
@@ -82,6 +83,10 @@ for episode in range(num_Episodes):
     avg_num_steps += (num_steps - avg_num_steps) * 0.1
     avg_return += (expected_return - avg_return) * 0.1
 
+print(f"IHT usage: {iht.count()}/{iht.size}")
+
+os.makedirs("weights", exist_ok=True)
+os.makedirs("ihts", exist_ok=True)
 weights_handler.save_weights(weights, f"weights/episodic_semi_gradient_sarsa_weights{filename_suffix}")
 su.serilizeIHT(iht, f"ihts/episodic_semi_gradient_sarsa_iht{filename_suffix}.pkl")
 env.close()
