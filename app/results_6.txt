@@ -1,0 +1,45 @@
+------------------------------------------ ID = 6 --------------------------------
+
+Episodic Semi Gradient SARSA-Test inference, IHT usage:4096/4096, numTilings:96
+Measures mean and standard deviation:
++--------------+--------+--------+
+|   Measure    |  Mean  | StdDev |
++--------------+--------+--------+
+|  num_steps   |  72.0  |  0.0   |
+|  avg_speed   | 20.409 |  0.35  |
+|  avg_reward  | 0.052  |  0.04  |
+| total_reward | 3.727  | 2.871  |
++--------------+--------+--------+
+
+True online TD Lambda-Test inference, IHT usage:4096/4096, numTilings:96
+Measures mean and standard deviation:
++--------------+--------+--------+
+|   Measure    |  Mean  | StdDev |
++--------------+--------+--------+
+|  num_steps   | 69.52  |  9.27  |
+|  avg_speed   | 20.746 |  0.43  |
+|  avg_reward  | 0.065  | 0.028  |
+| total_reward | 4.652  |  2.04  |
++--------------+--------+--------+
+
+Sarsa Lambda-Test inference, IHT usage:4096/4096, numTilings:96
+Measures mean and standard deviation:
++--------------+--------+--------+
+|   Measure    |  Mean  | StdDev |
++--------------+--------+--------+
+|  num_steps   | 13.42  | 14.868 |
+|  avg_speed   | 24.843 | 2.091  |
+|  avg_reward  | 0.241  | 0.259  |
+| total_reward | 2.815  | 3.123  |
++--------------+--------+--------+
+
+True online differential TD Lambda-Test inference, IHT usage:4096/4096, numTilings:96
+Measures mean and standard deviation:
++--------------+--------+--------+
+|   Measure    |  Mean  | StdDev |
++--------------+--------+--------+
+|  num_steps   | 67.64  | 15.033 |
+|  avg_speed   | 20.857 | 0.854  |
+|  avg_reward  | 0.085  | 0.035  |
+| total_reward | 5.532  | 2.164  |
++--------------+--------+--------+

@@ -4,7 +4,6 @@ import datetime
 
 import gymnasium as gym
 import numpy as np
-from prettytable import PrettyTable
 
 from app.tile_coding.my_tiles import IHT, tiles, estimate
 from app.utilities.config_utils import ConfigUtils
