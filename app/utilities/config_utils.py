@@ -228,6 +228,190 @@ class ConfigUtils:
 
         return config, filename_suffix, maxSize, numTilings, alpha, epsilon, gamma, lambda_, num_Episodes
 
+    def get_current_config5(self):
+        filename_suffix = "5"
+        config = {
+            "observation": {
+                "type": "Kinematics",
+                "features": ["x", "y", "vx", "vy"],
+                "absolute": False,
+                "order": "sorted",
+                "vehicles_count": 4,  # max number of observable vehicles
+                "normalize": True
+            },
+            "action": {
+                "type": "DiscreteMetaAction",
+            },
+            "lanes_count": 3,
+            "vehicles_count": 20,  # max number of existing vehicles
+            "duration": 72,  # [s]
+            "initial_spacing": 2,
+            "collision_reward": -10,  # The reward received when colliding with a vehicle.
+            "reward_speed_range": [25, 30],  # [m/s] The reward for high speed is mapped linearly from this range to [0,
+            # HighwayEnv.HIGH_SPEED_REWARD].
+            "high_speed_reward": 1,
+            "normalize_reward": False,
+            "simulation_frequency": 15,  # [Hz]
+            "policy_frequency": 1,  # [Hz]
+            "other_vehicles_type": "highway_env.vehicle.behavior.IDMVehicle",
+            "screen_width": 1200,  # [px]
+            "screen_height": 250,  # [px]
+            "centering_position": [0.1, 0.5],
+            "scaling": 5.5,
+            "show_trajectories": False,
+            "render_agent": False,
+            "offscreen_rendering": False
+        }
+
+        maxSize = 4096
+        numTilings = 96
+        alpha = 0.1 / numTilings
+        epsilon_0 = 0.1
+        epsilon = epsilon_0
+        gamma = 0.9
+        lambda_ = 0.9
+        num_Episodes = 1000
+
+        return config, filename_suffix, maxSize, numTilings, alpha, epsilon, gamma, lambda_, num_Episodes
+
+    def get_current_config6(self):
+        filename_suffix = "6"
+        config = {
+            "observation": {
+                "type": "Kinematics",
+                "features": ["x", "y", "vx", "vy"],
+                "absolute": False,
+                "order": "sorted",
+                "vehicles_count": 4,  # max number of observable vehicles
+                "normalize": True
+            },
+            "action": {
+                "type": "DiscreteMetaAction",
+            },
+            "lanes_count": 3,
+            "vehicles_count": 20,  # max number of existing vehicles
+            "duration": 72,  # [s]
+            "initial_spacing": 2,
+            "collision_reward": -36,  # The reward received when colliding with a vehicle.
+            "reward_speed_range": [25, 30],  # [m/s] The reward for high speed is mapped linearly from this range to [0,
+            # HighwayEnv.HIGH_SPEED_REWARD].
+            "high_speed_reward": 1,
+            "normalize_reward": False,
+            "simulation_frequency": 15,  # [Hz]
+            "policy_frequency": 1,  # [Hz]
+            "other_vehicles_type": "highway_env.vehicle.behavior.IDMVehicle",
+            "screen_width": 1200,  # [px]
+            "screen_height": 250,  # [px]
+            "centering_position": [0.1, 0.5],
+            "scaling": 5.5,
+            "show_trajectories": False,
+            "render_agent": False,
+            "offscreen_rendering": False
+        }
+
+        maxSize = 4096
+        numTilings = 96
+        alpha = 0.1 / numTilings
+        epsilon_0 = 0.1
+        epsilon = epsilon_0
+        gamma = 0.9
+        lambda_ = 0.9
+        num_Episodes = 1000
+
+        return config, filename_suffix, maxSize, numTilings, alpha, epsilon, gamma, lambda_, num_Episodes
+
+    def get_current_config7(self):
+        filename_suffix = "7"
+        config = {
+            "observation": {
+                "type": "Kinematics",
+                "features": ["x", "y", "vx", "vy"],
+                "absolute": False,
+                "order": "sorted",
+                "vehicles_count": 4,  # max number of observable vehicles
+                "normalize": True
+            },
+            "action": {
+                "type": "DiscreteMetaAction",
+            },
+            "lanes_count": 3,
+            "vehicles_count": 20,  # max number of existing vehicles
+            "duration": 72,  # [s]
+            "initial_spacing": 2,
+            "collision_reward": -10,  # The reward received when colliding with a vehicle.
+            "reward_speed_range": [25, 30],  # [m/s] The reward for high speed is mapped linearly from this range to [0,
+            # HighwayEnv.HIGH_SPEED_REWARD].
+            "high_speed_reward": 1,
+            "normalize_reward": False,
+            "simulation_frequency": 15,  # [Hz]
+            "policy_frequency": 1,  # [Hz]
+            "other_vehicles_type": "highway_env.vehicle.behavior.IDMVehicle",
+            "screen_width": 1200,  # [px]
+            "screen_height": 250,  # [px]
+            "centering_position": [0.1, 0.5],
+            "scaling": 5.5,
+            "show_trajectories": False,
+            "render_agent": False,
+            "offscreen_rendering": False
+        }
+
+        maxSize = 4096
+        numTilings = 96
+        alpha = 0.1 / numTilings
+        epsilon_0 = 0.1
+        epsilon = epsilon_0
+        gamma = 1
+        lambda_ = 0
+        num_Episodes = 1000
+
+        return config, filename_suffix, maxSize, numTilings, alpha, epsilon, gamma, lambda_, num_Episodes
+
+    def get_current_config8(self):
+        filename_suffix = "8"
+        config = {
+            "observation": {
+                "type": "Kinematics",
+                "features": ["x", "y", "vx", "vy"],
+                "absolute": False,
+                "order": "sorted",
+                "vehicles_count": 4,  # max number of observable vehicles
+                "normalize": True
+            },
+            "action": {
+                "type": "DiscreteMetaAction",
+            },
+            "lanes_count": 3,
+            "vehicles_count": 20,  # max number of existing vehicles
+            "duration": 72,  # [s]
+            "initial_spacing": 2,
+            "collision_reward": -36,  # The reward received when colliding with a vehicle.
+            "reward_speed_range": [25, 30],  # [m/s] The reward for high speed is mapped linearly from this range to [0,
+            # HighwayEnv.HIGH_SPEED_REWARD].
+            "high_speed_reward": 1,
+            "normalize_reward": False,
+            "simulation_frequency": 15,  # [Hz]
+            "policy_frequency": 1,  # [Hz]
+            "other_vehicles_type": "highway_env.vehicle.behavior.IDMVehicle",
+            "screen_width": 1200,  # [px]
+            "screen_height": 250,  # [px]
+            "centering_position": [0.1, 0.5],
+            "scaling": 5.5,
+            "show_trajectories": False,
+            "render_agent": False,
+            "offscreen_rendering": False
+        }
+
+        maxSize = 4096
+        numTilings = 96
+        alpha = 0.1 / numTilings
+        epsilon_0 = 0.1
+        epsilon = epsilon_0
+        gamma = 1
+        lambda_ = 0
+        num_Episodes = 1000
+
+        return config, filename_suffix, maxSize, numTilings, alpha, epsilon, gamma, lambda_, num_Episodes
+
     def get_inference_config1(self):
         config, filename_suffix, maxSize, numTilings, _, _, _, _, _ = self.get_current_config1()
         config["normalize_reward"] = False
@@ -248,6 +432,30 @@ class ConfigUtils:
 
     def get_inference_config4(self):
         config, filename_suffix, maxSize, numTilings, _, _, _, _, _ = self.get_current_config4()
+        config["normalize_reward"] = False
+        config["collision_reward"] = -1
+        return config, filename_suffix, maxSize, numTilings
+
+    def get_inference_config5(self):
+        config, filename_suffix, maxSize, numTilings, _, _, _, _, _ = self.get_current_config5()
+        config["normalize_reward"] = False
+        config["collision_reward"] = -1
+        return config, filename_suffix, maxSize, numTilings
+
+    def get_inference_config6(self):
+        config, filename_suffix, maxSize, numTilings, _, _, _, _, _ = self.get_current_config6()
+        config["normalize_reward"] = False
+        config["collision_reward"] = -1
+        return config, filename_suffix, maxSize, numTilings
+
+    def get_inference_config7(self):
+        config, filename_suffix, maxSize, numTilings, _, _, _, _, _ = self.get_current_config7()
+        config["normalize_reward"] = False
+        config["collision_reward"] = -1
+        return config, filename_suffix, maxSize, numTilings
+
+    def get_inference_config8(self):
+        config, filename_suffix, maxSize, numTilings, _, _, _, _, _ = self.get_current_config8()
         config["normalize_reward"] = False
         config["collision_reward"] = -1
         return config, filename_suffix, maxSize, numTilings
