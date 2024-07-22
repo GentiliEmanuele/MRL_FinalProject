@@ -10,7 +10,7 @@ Measures mean and standard deviation:
 | total_reward | 13.831 | 9.105  |
 +--------------+--------+--------+
 
-True online TD Lambda-Test inference, maxSize:12288, numTilings:96
+True online TD Lambda-Test inference, IHT usage:7654/12288, numTilings:96
 Measures mean and standard deviation:
 +--------------+--------+--------+
 |   Measure    |  Mean  | StdDev |
@@ -22,7 +22,7 @@ Measures mean and standard deviation:
 +--------------+--------+--------+
 
 
-Sarsa Lambda-Test inference, maxSize:12288, numTilings:96
+Sarsa Lambda-Test inference, IHT usage:6618/12288, numTilings:96
 Measures mean and standard deviation:
 +--------------+--------+--------+
 |   Measure    |  Mean  | StdDev |

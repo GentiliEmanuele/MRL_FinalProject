@@ -9,3 +9,36 @@ Measures mean and standard deviation:
 |  avg_reward  | 0.066  | 0.032  |
 | total_reward | 4.771  | 2.331  |
 +--------------+--------+--------+
+
+True online TD Lambda-Test inference, IHT usage:7331/12288, numTilings:96
+Measures mean and standard deviation:
++--------------+--------+--------+
+|   Measure    |  Mean  | StdDev |
++--------------+--------+--------+
+|  num_steps   |  72.0  |  0.0   |
+|  avg_speed   | 20.475 | 0.505  |
+|  avg_reward  | 0.074  | 0.022  |
+| total_reward | 5.323  | 1.598  |
++--------------+--------+--------+
+
+Sarsa Lambda-Test inference, IHT usage:7165/12288, numTilings:96
+Measures mean and standard deviation:
++--------------+-------+--------+
+|   Measure    |  Mean | StdDev |
++--------------+-------+--------+
+|  num_steps   | 38.38 | 26.921 |
+|  avg_speed   | 22.78 | 2.352  |
+|  avg_reward  | 0.147 | 0.178  |
+| total_reward | 3.885 | 3.129  |
++--------------+-------+--------+
+
+True online differential TD Lambda-Test inference, IHT usage:7445/12288, numTilings:96
+Measures mean and standard deviation:
++--------------+--------+--------+
+|   Measure    |  Mean  | StdDev |
++--------------+--------+--------+
+|  num_steps   |  72.0  |  0.0   |
+|  avg_speed   | 20.708 | 0.468  |
+|  avg_reward  |  0.06  | 0.031  |
+| total_reward |  4.34  | 2.248  |
++--------------+--------+--------+
