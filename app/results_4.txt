@@ -1,1 +1,11 @@
 ------------------------------------------ ID = 4 --------------------------------
+Sarsa Lambda-Test inference, IHT usage:6893/12288, numTilings:96
+Measures mean and standard deviation:
++--------------+--------+--------+
+|   Measure    |  Mean  | StdDev |
++--------------+--------+--------+
+|  num_steps   | 16.42  | 15.357 |
+|  avg_speed   | 25.315 | 2.452  |
+|  avg_reward  | 0.296  | 0.301  |
+| total_reward | 4.459  | 4.576  |
++--------------+--------+--------+
