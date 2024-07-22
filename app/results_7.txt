@@ -1,0 +1,34 @@
+------------------------------------------ ID = 7 --------------------------------
+
+True online TD Lambda-Test inference, IHT usage:4096/4096, numTilings:96
+Measures mean and standard deviation:
++--------------+--------+--------+
+|   Measure    |  Mean  | StdDev |
++--------------+--------+--------+
+|  num_steps   | 16.52  | 14.022 |
+|  avg_speed   | 27.484 | 1.429  |
+|  avg_reward  | 0.586  | 0.193  |
+| total_reward | 10.393 | 10.062 |
++--------------+--------+--------+
+
+Sarsa Lambda-Test inference, IHT usage:4096/4096, numTilings:96
+Measures mean and standard deviation:
++--------------+-------+--------+
+|   Measure    |  Mean | StdDev |
++--------------+-------+--------+
+|  num_steps   | 16.86 | 14.516 |
+|  avg_speed   |  25.5 | 2.312  |
+|  avg_reward  | 0.342 |  0.23  |
+| total_reward | 4.758 | 3.334  |
++--------------+-------+--------+
+
+True online differential TD Lambda-Test inference, IHT usage:4096/4096, numTilings:96
+Measures mean and standard deviation:
++--------------+--------+--------+
+|   Measure    |  Mean  | StdDev |
++--------------+--------+--------+
+|  num_steps   | 16.08  | 14.334 |
+|  avg_speed   | 27.696 | 1.377  |
+|  avg_reward  | 0.601  | 0.271  |
+| total_reward | 12.096 | 13.983 |
++--------------+--------+--------+
