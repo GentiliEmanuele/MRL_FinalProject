@@ -70,7 +70,7 @@ for episode in range(num_Episodes):
         delta = reward
 
         # loop on tiles
-        traces = np.zeros((maxSize, space_action_len))
+        # traces = np.zeros((maxSize, space_action_len))
         for tile in tiles_list:
             delta = delta - weights[tile, action]
             # traces[tile, action] += 1
