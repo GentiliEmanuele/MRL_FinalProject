@@ -1,0 +1,21 @@
+Sarsa Lambda-Test inference, IHT usage:5870/12288, numTilings:96 (replacing)
+Measures mean and standard deviation:
++--------------+--------+--------+
+|   Measure    |  Mean  | StdDev |
++--------------+--------+--------+
+|  num_steps   | 11.16  | 7.341  |
+|  avg_speed   | 28.026 | 1.175  |
+|  avg_reward  | 0.678  | 0.249  |
+| total_reward | 8.352  |  7.55  |
++--------------+--------+--------+
+
+Sarsa Lambda-Test inference, IHT usage:6909/12288, numTilings:96 (accumulating)
+Measures mean and standard deviation:
++--------------+--------+--------+
+|   Measure    |  Mean  | StdDev |
++--------------+--------+--------+
+|  num_steps   |  9.98  | 5.795  |
+|  avg_speed   | 26.331 | 1.881  |
+|  avg_reward  | 0.409  | 0.252  |
+| total_reward | 4.344  | 3.204  |
++--------------+--------+--------+
