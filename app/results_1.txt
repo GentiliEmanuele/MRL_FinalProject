@@ -44,3 +44,14 @@ Measures mean and standard deviation:
 | total_reward | 12.411 | 6.102  |
 +--------------+--------+--------+
 
+DQN inference
+Measures mean and standard deviation:
++--------------+--------+--------+
+|   Measure    |  Mean  | StdDev |
++--------------+--------+--------+
+|  num_steps   | 21.26  | 16.925 |
+|  avg_speed   | 28.952 | 0.892  |
+|  avg_reward  | 0.849  | 0.224  |
+| total_reward | 20.016 | 17.239 |
++--------------+--------+--------+
+

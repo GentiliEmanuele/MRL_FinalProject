@@ -115,13 +115,13 @@ for i in range(inference_runs):
         env = record_videos(env)
 
     while not done and not truncated:
-        # Get tilings for current state
-        tiles_list = tiles(iht, numTilings, state.flatten().tolist())
 
         # Choose action
         if special_type == "DQN":
             action, _ = model.predict(state, deterministic=True)
         else:
+            # Get tilings for current state
+            tiles_list = tiles(iht, numTilings, state.flatten().tolist())
             action = cu.get_e_greedy_action(-1, tiles_list, weights, random, env)
 
         # Simulate
@@ -150,7 +150,9 @@ for i in range(inference_runs):
               .format(i, num_steps, avg_speed, avg_reward, total_reward, status))
 
 # Print name and info
-print(f"\n\n{inference_name}-{inference_suffix}, IHT usage:{iht.count()}/{iht.size}, numTilings:{numTilings}")
+
+if special_type != "DQN":
+    print(f"\n\n{inference_name}-{inference_suffix}, IHT usage:{iht.count()}/{iht.size}, numTilings:{numTilings}")
 
 # Print mean and standard deviation of metrics
 print("Measures mean and standard deviation:")
